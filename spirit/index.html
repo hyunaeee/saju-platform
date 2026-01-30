@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>정밀 신기(神氣) 테스트 & 사주 분석</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: #050202; color: #e2e8f0; overflow-x: hidden; }
+        .font-batang { font-family: 'Gowun Batang', serif; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #1a1a1a; }
+        ::-webkit-scrollbar-thumb { background: #4a0404; border-radius: 3px; }
+
+        /* Animations */
+        @keyframes drift {
+            0% { transform: translate(0, 0); }
+            50% { transform: translate(10px, -10px); }
+            100% { transform: translate(0, 0); }
+        }
+        .bg-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.2;
+            animation: drift 10s infinite ease-in-out;
+        }
+        .fade-in { animation: fadeIn 0.8s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .slide-in-right { animation: slideInRight 0.5s ease-out forwards; }
+        @keyframes slideInRight { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+
+        input[type="date"], input[type="time"], input[type="text"] {
+            color-scheme: dark;
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useMemo } = React;
+
+        // --- Icons ---
+        const Icon = ({ d, className }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d={d} /></svg>
+        );
+        const Icons = {
+            Eye: (p) => <Icon {...p} d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z M12 9a3 3 0 1 0 0 6 3 3 0 0 0 0-6" />,
+            Ghost: (p) => <Icon {...p} d="M9 22v-3h6v3 M9 19H4.8c-1.3 0-2.4-1.3-2-2.7l1.6-4.2C5.3 9.4 7.6 7.5 10 7.5h4c2.4 0 4.7 1.9 5.6 4.6l1.6 4.2c.4 1.4-.7 2.7-2 2.7H15 M10 13a2 2 0 1 0 4 0" />,
+            Sparkles: (p) => <Icon {...p} d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" />,
+            ArrowLeft: (p) => <Icon {...p} d="m12 19-7-7 7-7 M19 12H5" />,
+            Flame: (p) => <Icon {...p} d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.1.2-2.2.5-3.3.3-1.2 1.8-1.2 2.5-.2Z" />,
+            Moon: (p) => <Icon {...p} d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />,
+            Scroll: (p) => <Icon {...p} d="M8 19h13 M8 19a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h13V17a2 2 0 0 1-2 2H8Z" />
+        };
+
+        // --- Saju Logic (Simplified for Demo) ---
+        const CEON_GAN = ['갑(甲)', '을(乙)', '병(丙)', '정(丁)', '무(戊)', '기(己)', '경(庚)', '신(辛)', '임(壬)', '계(癸)'];
+        const JI_JI = ['자(子)', '축(丑)', '인(寅)', '묘(卯)', '진(辰)', '사(巳)', '오(午)', '미(未)', '신(申)', '유(酉)', '술(戌)', '해(亥)'];
+        
+        // 특수 신살 체크 로직
+        const checkSpecialStars = (jijiArray) => {
+            const stars = [];
+            
+            // 1. 화개살 (예술, 종교, 고독) - 진, 술, 축, 미
+            const hwagae = jijiArray.filter(ji => ['진(辰)', '술(戌)', '축(丑)', '미(未)'].includes(ji)).length;
+            if (hwagae >= 2) stars.push({ name: "화개살(華蓋殺)", score: 20, desc: "화려한 것을 덮는다는 뜻으로, 종교, 예술, 철학에 깊은 인연이 있습니다. 고독하지만 내면의 빛이 강합니다." });
+
+            // 2. 도화살 (끼, 인기, 매력) - 자, 오, 묘, 유
+            const dohwa = jijiArray.filter(ji => ['자(子)', '오(午)', '묘(卯)', '유(酉)'].includes(ji)).length;
+            if (dohwa >= 2) stars.push({ name: "도화살(桃花殺)", score: 10, desc: "복숭아 꽃처럼 사람을 끌어당기는 매력입니다. 연예인이나 무속인에게서 흔히 보이는 사람을 홀리는 기운입니다." });
+
+            // 3. 천문성 (하늘의 문, 직감) - 술, 해가 2개 이상
+            const cheonmun = jijiArray.filter(ji => ['술(戌)', '해(亥)'].includes(ji)).length;
+            if (cheonmun >= 1) stars.push({ name: "천문성(天文星)", score: 30, desc: "하늘의 문이 열려있어 직감이 매우 뛰어납니다. 사람의 생명을 살리거나 정신적인 지도자가 될 운명입니다." });
+
+            // 4. 귀문관살 (예민, 천재성) - 특정 조합 (자-유, 축-오, 인-미, 묘-신, 진-해, 사-술)
+            // 약식으로 "묘, 신" 또는 "진, 해" 등이 같이 있는지만 체크
+            const jijiStr = jijiArray.join('');
+            let guimunFound = false;
+            if ((jijiArray.includes('자(子)') && jijiArray.includes('유(酉)')) ||
+                (jijiArray.includes('축(丑)') && jijiArray.includes('오(午)')) ||
+                (jijiArray.includes('인(寅)') && jijiArray.includes('미(未)')) ||
+                (jijiArray.includes('묘(卯)') && jijiArray.includes('신(申)')) ||
+                (jijiArray.includes('진(辰)') && jijiArray.includes('해(亥)')) ||
+                (jijiArray.includes('사(巳)') && jijiArray.includes('술(戌)'))) {
+                guimunFound = true;
+            }
+            if (guimunFound) stars.push({ name: "귀문관살(鬼門關殺)", score: 40, desc: "귀신이 드나드는 문이 있다는 뜻으로, 신경이 매우 예민하고 천재적인 영감을 가졌으나 정신적 스트레스에 취약합니다." });
+
+            return stars;
+        };
+
+        const calculateSaju = (year, month, day) => {
+            // Solar Calendar Approximation (Not perfect Manse-ryok, but sufficient for determining Ganji basics)
+            const baseDate = new Date(1900, 0, 31); // 1900-01-31 (Lunar New Year approx base)
+            const targetDate = new Date(year, month - 1, day);
+            
+            // Year Ganji
+            const yearIdx = (year - 4) % 60;
+            const yearGan = CEON_GAN[yearIdx % 10];
+            const yearJi = JI_JI[yearIdx % 12];
+
+            // Month Ganji (Simplified formula based on Year Stem)
+            const monthTerm = Math.floor((month - 1) / 2); // Roughly
+            // Accurate month calculation needs solar terms (Jeol-gi), using simple mapping for demo
+            let monthStemIdx = (yearIdx % 5 * 2 + month) % 10; 
+            let monthJiIdx = (month + 1) % 12; // In-month starts approx Feb
+            const monthGan = CEON_GAN[monthStemIdx];
+            const monthJi = JI_JI[monthJiIdx];
+
+            // Day Ganji (Days passed since base)
+            const dayDiff = Math.floor((targetDate - baseDate) / (1000 * 60 * 60 * 24));
+            const dayIdx = (dayDiff + 10) % 60; // Offset adjustment
+            const dayGan = CEON_GAN[dayIdx % 10];
+            const dayJi = JI_JI[dayIdx % 12];
+
+            return {
+                text: `${yearGan}${yearJi}년 ${monthGan}${monthJi}월 ${dayGan}${dayJi}일`,
+                jiji: [yearJi, monthJi, dayJi] // 시지는 제외 (입력 안받았을 경우 대비)
+            };
+        };
+
+        // --- Questions (Expanded to 15) ---
+        const QUESTIONS = [
+            "꿈이 현실에서 그대로 일어나는 예지몽을 꾼 적이 있다.", // 1
+            "가위눌림을 겪을 때 귀신을 보거나 소리를 들은 적이 있다.", // 2
+            "처음 가본 장소인데 예전에 와본 듯한 느낌(데자뷰)이 강하게 든다.", // 3
+            "사람의 첫인상을 보면 그 사람의 성격이나 미래가 직감적으로 느껴진다.", // 4
+            "병원에서는 이상이 없다고 하는데 이유 없이 몸이 시름시름 아플 때가 많다 (신병).", // 5
+            "상갓집, 장례식장, 결혼식장에 다녀오면 몸살이 나거나 기분이 급격히 나빠진다.", // 6
+            "가끔 내 의지와 상관없이 멍해지거나 다른 인격이 들어온 것 같은 기분을 느낀다.", // 7
+            "남들에게는 들리지 않는 방울 소리, 휘파람 소리, 혹은 웅성거리는 소리가 들린다.", // 8
+            "유난히 '촉'이 좋아 친구들의 비밀이나 거짓말을 단번에 알아챈다.", // 9
+            "무속적인 물건(방울, 부채)이나 장소(굿당, 절)를 보면 두려움보다는 묘한 설렘이나 편안함을 느낀다.", // 10
+            "꿈속에서 할머니, 할아버지 등 조상님이 나타나 숫자를 주거나 경고를 한 적이 있다.", // 11
+            "비가 오거나 날씨가 흐린 날이면 유독 기분이 센치해지거나 몸이 무겁게 가라앉는다.", // 12
+            "동물들이 나를 유독 따르거나, 반대로 나를 보고 이유 없이 짖거나 피한다.", // 13
+            "종교가 없는데도 기도를 하고 싶거나 수행을 해야 할 것 같은 강박이 든다.", // 14
+            "손금이나 관상, 타로 등을 배우지 않았는데도 남들을 봐주면 잘 맞춘다는 소리를 듣는다." // 15
+        ];
+
+        function App() {
+            const [step, setStep] = useState('intro'); // intro, input, test, loading, result
+            const [userData, setUserData] = useState({ name: '', year: '', month: '', day: '', time: '' });
+            const [currentQ, setCurrentQ] = useState(0);
+            const [answers, setAnswers] = useState([]);
+            const [testScore, setTestScore] = useState(0);
+            const [sajuResult, setSajuResult] = useState(null);
+
+            // Intro -> Input
+            const handleStartClick = () => setStep('input');
+
+            // Input -> Test
+            const handleInputSubmit = (e) => {
+                e.preventDefault();
+                if(!userData.year || !userData.month || !userData.day) return alert("생년월일을 입력해주세요.");
+                
+                // 사주 미리 계산
+                const saju = calculateSaju(parseInt(userData.year), parseInt(userData.month), parseInt(userData.day));
+                const stars = checkSpecialStars(saju.jiji);
+                
+                // 사주 점수 계산 (신살 기반)
+                const sajuScore = stars.reduce((acc, star) => acc + star.score, 0);
+
+                setSajuResult({ ...saju, stars, score: sajuScore });
+                setStep('test');
+            };
+
+            // Test Logic
+            const handleAnswer = (score) => {
+                const newAnswers = [...answers, score];
+                setAnswers(newAnswers);
+
+                if (currentQ < QUESTIONS.length - 1) {
+                    setCurrentQ(currentQ + 1);
+                } else {
+                    // Final Calculation
+                    const totalTestScore = newAnswers.reduce((a, b) => a + b, 0) + score;
+                    setTestScore(totalTestScore); // Max 15 * 2 = 30? No, Yes=1/No=0 logic? 
+                    // Let's use weighted: Yes=2, Sometimes=1, No=0
+                    setStep('loading');
+                }
+            };
+
+            // Score Logic (Weighted)
+            // Questions handling: Just Yes (1) / No (0) for simplicity in previous code, 
+            // but let's make it more granular in the UI if possible, or stick to Yes/No for speed.
+            // Let's stick to Yes/No but internally map Yes -> 10 points, No -> 0 to match 100 scale roughly?
+            // 15 Questions. Yes = 1, No = 0. Max Score 15.
+            
+            // Total Analysis Logic
+            const finalVerdict = useMemo(() => {
+                if (!sajuResult) return null;
+                
+                // Normalize Scores
+                const normalizedTestScore = (testScore / 15) * 100; // 0 ~ 100
+                const normalizedSajuScore = Math.min(sajuResult.score, 100); // 0 ~ 100 (capped)
+
+                const total = (normalizedTestScore * 0.6) + (normalizedSajuScore * 0.4); // Test 60%, Saju 40%
+
+                let type = "";
+                let desc = "";
+                let color = "";
+
+                if (total >= 80) {
+                    type = "강신무(降神巫)의 운명";
+                    desc = "하늘의 문이 열려 있고, 당신의 영혼 또한 그것을 받아들일 준비가 되어 있습니다. 피할 수 없는 강한 신기가 흐르고 있으며, 이를 거부할수록 고통스러울 수 있습니다. 업을 닦거나, 올바른 스승을 만나 기운을 다스려야 합니다.";
+                    color = "text-red-500";
+                } else if (total >= 60) {
+                    type = "세습무(世襲巫)의 기질";
+                    desc = "조상으로부터 내려온 영적 기운이 강합니다. 직접 신을 받지 않더라도, 예술이나 활인업(의사, 간호사, 상담사)으로 그 기운을 풀어내야 평안해집니다. 촉이 매우 좋고 예지력이 있습니다.";
+                    color = "text-purple-400";
+                } else if (total >= 40) {
+                    type = "화개살(華蓋殺)의 영향";
+                    desc = "종교적, 예술적 감수성이 뛰어난 사람입니다. 가끔 영적인 체험을 하거나 우울감에 빠질 수 있으나, 이는 당신의 섬세한 감각 때문입니다. 명상이나 종교 활동이 큰 도움이 됩니다.";
+                    color = "text-yellow-400";
+                } else {
+                    type = "평범하고 건강한 기운";
+                    desc = "영적인 기운보다는 현실적인 감각과 이성이 발달했습니다. 귀신이나 영적 현상에 휘둘리지 않는 튼튼한 정신력을 가지고 있습니다. 현재의 삶에 충실하면 복이 따릅니다.";
+                    color = "text-gray-400";
+                }
+
+                return { type, desc, color, total, testScore: normalizedTestScore, sajuScore: normalizedSajuScore };
+            }, [testScore, sajuResult]);
+
+            useEffect(() => {
+                if (step === 'loading') {
+                    setTimeout(() => setStep('result'), 3000);
+                }
+            }, [step]);
+
+            return (
+                <div className="min-h-screen flex flex-col items-center justify-center p-4 relative overflow-hidden">
+                    {/* Background Orbs */}
+                    <div className="bg-orb w-96 h-96 bg-red-900 top-0 left-0"></div>
+                    <div className="bg-orb w-80 h-80 bg-purple-900 bottom-0 right-0" style={{ animationDelay: '-5s' }}></div>
+                    <div className="absolute inset-0 bg-black/40 backdrop-blur-[1px]"></div>
+
+                    {/* Back Link */}
+                    <a href="../index.html" className="absolute top-6 left-6 z-20 text-gray-500 hover:text-white flex items-center gap-2 transition-colors text-sm">
+                        <Icons.ArrowLeft className="w-4 h-4"/> 메인으로
+                    </a>
+
+                    <div className="relative z-10 w-full max-w-lg bg-black/40 border border-white/10 backdrop-blur-md rounded-2xl shadow-2xl overflow-hidden min-h-[600px] flex flex-col">
+                        
+                        {/* 1. INTRO */}
+                        {step === 'intro' && (
+                            <div className="flex flex-col items-center justify-center flex-grow p-8 text-center fade-in">
+                                <div className="mb-6 relative">
+                                    <div className="absolute inset-0 bg-red-600 blur-2xl opacity-20 animate-pulse"></div>
+                                    <Icons.Eye className="w-20 h-20 text-red-600 relative z-10" />
+                                </div>
+                                <h1 className="text-3xl font-batang font-bold text-white mb-2">정밀 신기(神氣) 테스트</h1>
+                                <p className="text-red-400 text-sm font-medium tracking-widest mb-8">영적 기운 & 사주 명리학 통합 분석</p>
+                                
+                                <div className="bg-white/5 rounded-xl p-6 text-left space-y-4 mb-8 border border-white/5">
+                                    <p className="text-gray-300 text-sm leading-relaxed">
+                                        "이유 없이 아프거나, 꿈이 너무 잘 맞나요?"
+                                    </p>
+                                    <p className="text-gray-400 text-xs leading-relaxed">
+                                        이 테스트는 단순한 심리 테스트가 아닙니다.<br/>
+                                        당신의 <strong>무의식 반응(Test)</strong>과 <strong>타고난 생년월일</strong>을 교차 분석하여, 당신에게 흐르는 영적인 에너지의 실체를 밝혀냅니다.
+                                    </p>
+                                </div>
+
+                                <button onClick={handleStartClick} className="w-full py-4 bg-red-900 hover:bg-red-800 text-white font-bold rounded-lg transition-all border border-red-700 shadow-[0_0_15px_rgba(153,27,27,0.5)]">
+                                    내 운명 확인하기
+                                </button>
+                            </div>
+                        )}
+
+                        {/* 2. INPUT (SAJU) */}
+                        {step === 'input' && (
+                            <div className="flex flex-col flex-grow p-8 fade-in">
+                                <h2 className="text-2xl font-batang font-bold text-white mb-6 text-center">사주 정보 입력</h2>
+                                <p className="text-gray-400 text-xs text-center mb-8">
+                                    정확한 명식 분석을 위해 생년월일을 입력해주세요.<br/>
+                                    (입력하신 정보는 어디에도 저장되지 않습니다.)
+                                </p>
+
+                                <form onSubmit={handleInputSubmit} className="space-y-5">
+                                    <div>
+                                        <label className="block text-xs text-red-400 mb-1 ml-1">이름 (선택)</label>
+                                        <input type="text" 
+                                            value={userData.name}
+                                            onChange={(e) => setUserData({...userData, name: e.target.value})}
+                                            className="w-full bg-black/50 border border-gray-700 rounded-lg p-3 text-white focus:border-red-500 focus:outline-none transition"
+                                            placeholder="홍길동"
+                                        />
+                                    </div>
+                                    <div className="grid grid-cols-3 gap-3">
+                                        <div>
+                                            <label className="block text-xs text-gray-500 mb-1 ml-1">년 (Year)</label>
+                                            <input type="number" placeholder="1990" required
+                                                value={userData.year}
+                                                onChange={(e) => setUserData({...userData, year: e.target.value})}
+                                                className="w-full bg-black/50 border border-gray-700 rounded-lg p-3 text-white focus:border-red-500 focus:outline-none"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs text-gray-500 mb-1 ml-1">월 (Month)</label>
+                                            <input type="number" placeholder="1" min="1" max="12" required
+                                                value={userData.month}
+                                                onChange={(e) => setUserData({...userData, month: e.target.value})}
+                                                className="w-full bg-black/50 border border-gray-700 rounded-lg p-3 text-white focus:border-red-500 focus:outline-none"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs text-gray-500 mb-1 ml-1">일 (Day)</label>
+                                            <input type="number" placeholder="1" min="1" max="31" required
+                                                value={userData.day}
+                                                onChange={(e) => setUserData({...userData, day: e.target.value})}
+                                                className="w-full bg-black/50 border border-gray-700 rounded-lg p-3 text-white focus:border-red-500 focus:outline-none"
+                                            />
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs text-gray-500 mb-1 ml-1">태어난 시간 (모르면 비워두세요)</label>
+                                        <input type="time"
+                                            value={userData.time}
+                                            onChange={(e) => setUserData({...userData, time: e.target.value})}
+                                            className="w-full bg-black/50 border border-gray-700 rounded-lg p-3 text-white focus:border-red-500 focus:outline-none"
+                                        />
+                                    </div>
+
+                                    <div className="pt-6">
+                                        <button type="submit" className="w-full py-4 bg-gray-800 hover:bg-gray-700 text-white font-bold rounded-lg transition-all flex items-center justify-center gap-2">
+                                            <Icons.Scroll className="w-4 h-4"/> 분석 시작
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        )}
+
+                        {/* 3. TEST (QUESTIONS) */}
+                        {step === 'test' && (
+                            <div className="flex flex-col flex-grow p-8 fade-in">
+                                <div className="flex justify-between items-center mb-8">
+                                    <span className="text-xs text-red-500 font-bold">Q.{currentQ + 1}</span>
+                                    <div className="flex gap-1">
+                                        {Array.from({length: 15}).map((_, i) => (
+                                            <div key={i} className={`w-1.5 h-1.5 rounded-full ${i <= currentQ ? 'bg-red-500' : 'bg-gray-800'}`}></div>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                <div className="flex-grow flex items-center justify-center text-center mb-8">
+                                    <h2 className="text-xl font-batang font-bold leading-relaxed text-white word-keep-all slide-in-right">
+                                        {QUESTIONS[currentQ]}
+                                    </h2>
+                                </div>
+
+                                <div className="space-y-3">
+                                    <button onClick={() => handleAnswer(1)} className="w-full py-4 bg-gradient-to-r from-red-900/20 to-transparent border border-red-500/30 hover:bg-red-900/40 text-red-100 rounded-lg transition-all">
+                                        그렇다 (자주 겪는다)
+                                    </button>
+                                    <button onClick={() => handleAnswer(0)} className="w-full py-4 bg-gray-800/30 border border-gray-700 hover:bg-gray-800 text-gray-300 rounded-lg transition-all">
+                                        아니다 (거의 없다)
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* 4. LOADING */}
+                        {step === 'loading' && (
+                            <div className="flex flex-col items-center justify-center flex-grow p-8 text-center fade-in">
+                                <Icons.Flame className="w-16 h-16 text-red-600 animate-pulse mb-6" />
+                                <h2 className="text-xl font-batang font-bold text-white mb-2">천기(天機)를 읽는 중...</h2>
+                                <div className="space-y-1 text-sm text-gray-500">
+                                    <p>사주 명식 분석 완료</p>
+                                    <p>신살(神殺) 탐색 중...</p>
+                                    <p>영적 반응도 계산 중...</p>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* 5. RESULT */}
+                        {step === 'result' && finalVerdict && sajuResult && (
+                            <div className="flex flex-col flex-grow fade-in overflow-y-auto max-h-[700px]">
+                                {/* Summary Header */}
+                                <div className="p-8 pb-0 text-center">
+                                    <h2 className="text-sm text-gray-400 mb-1">{userData.name ? userData.name + '님의' : '당신의'} 영적 기운 진단</h2>
+                                    <h1 className={`text-3xl font-batang font-bold mb-4 ${finalVerdict.color}`}>{finalVerdict.type}</h1>
+                                    <div className="flex justify-center items-center gap-2 mb-6">
+                                        <div className="px-3 py-1 rounded-full bg-white/10 text-xs text-gray-300 border border-white/10">
+                                            테스트 점수: {Math.round(finalVerdict.testScore)}점
+                                        </div>
+                                        <div className="px-3 py-1 rounded-full bg-white/10 text-xs text-gray-300 border border-white/10">
+                                            사주 점수: {Math.round(finalVerdict.sajuScore)}점
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Main Content Scrollable */}
+                                <div className="px-6 pb-8 space-y-6">
+                                    
+                                    {/* 1. 종합 분석 */}
+                                    <div className="bg-black/40 border border-white/10 rounded-xl p-6 shadow-lg">
+                                        <div className="flex items-center gap-2 mb-3 border-b border-white/10 pb-2">
+                                            <Icons.Ghost className="w-4 h-4 text-purple-400" />
+                                            <h3 className="text-sm font-bold text-gray-200">종합 해설</h3>
+                                        </div>
+                                        <p className="text-gray-300 text-sm leading-relaxed word-keep-all">
+                                            {finalVerdict.desc}
+                                        </p>
+                                    </div>
+
+                                    {/* 2. 사주 정밀 분석 */}
+                                    <div className="bg-black/40 border border-white/10 rounded-xl p-6 shadow-lg">
+                                        <div className="flex items-center gap-2 mb-4 border-b border-white/10 pb-2">
+                                            <Icons.Scroll className="w-4 h-4 text-yellow-500" />
+                                            <h3 className="text-sm font-bold text-gray-200">타고난 사주 명식</h3>
+                                        </div>
+                                        
+                                        <div className="text-center mb-4">
+                                            <p className="text-xl font-serif text-yellow-100 tracking-widest">{sajuResult.text}</p>
+                                            <p className="text-xs text-gray-500 mt-1">에 태어난 명입니다.</p>
+                                        </div>
+
+                                        <div className="space-y-3">
+                                            {sajuResult.stars.length > 0 ? (
+                                                sajuResult.stars.map((star, i) => (
+                                                    <div key={i} className="bg-white/5 p-3 rounded-lg border-l-2 border-red-500">
+                                                        <div className="flex justify-between items-center mb-1">
+                                                            <span className="text-red-400 font-bold text-sm">{star.name}</span>
+                                                            <span className="text-[10px] text-gray-500">발견됨</span>
+                                                        </div>
+                                                        <p className="text-xs text-gray-400">{star.desc}</p>
+                                                    </div>
+                                                ))
+                                            ) : (
+                                                <div className="text-center py-4 text-sm text-gray-500">
+                                                    특이한 신살이 발견되지 않았습니다.<br/>
+                                                    평온하고 안정적인 팔자입니다.
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    {/* 3. Actions */}
+                                    <div className="flex gap-3 pt-2">
+                                        <button onClick={() => window.location.reload()} className="flex-1 py-3 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition-colors text-sm">
+                                            다시 검사하기
+                                        </button>
+                                        <a href="../index.html" className="flex-1 py-3 bg-red-900 text-white rounded-lg hover:bg-red-800 transition-colors text-sm flex items-center justify-center">
+                                            다른 운세 보기
+                                        </a>
+                                    </div>
+
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>

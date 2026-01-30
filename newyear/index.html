@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>청룡당 명리학 - 신년운세 및 성향분석</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;700&family=Noto+Serif+KR:wght@400;700;900&display=swap');
+        
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: #0f172a; /* Slate 900 */
+            color: #f1f5f9; /* Slate 100 */
+        }
+        .serif {
+            font-family: 'Noto Serif KR', serif;
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.8s ease-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .loader {
+            border: 4px solid rgba(251, 191, 36, 0.1);
+            border-left-color: #fbbf24;
+            border-radius: 50%;
+            width: 4rem;
+            height: 4rem;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        /* Hide scrollbar for cleaner look */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1e293b; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #475569; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #64748b; 
+        }
+    </style>
+</head>
+<body class="min-h-screen selection:bg-amber-500 selection:text-white">
+
+    <!-- Header -->
+    <header class="bg-slate-950 border-b border-slate-800 p-4 sticky top-0 z-50 shadow-md">
+        <div class="max-w-3xl mx-auto flex items-center justify-between">
+            <div class="flex items-center gap-2 cursor-pointer" onclick="resetApp()">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+                <h1 class="text-xl font-bold bg-gradient-to-r from-amber-200 to-amber-500 bg-clip-text text-transparent">
+                    청룡당 명리학
+                </h1>
+            </div>
+            <button id="reset-btn" onclick="resetApp()" class="hidden text-sm text-slate-400 hover:text-white flex items-center gap-1 transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74-2.74L3 12"/></svg>
+                다시 보기
+            </button>
+        </div>
+    </header>
+
+    <main class="max-w-3xl mx-auto p-4 md:p-8 relative">
+
+        <!-- Section 1: Input Form -->
+        <div id="input-section" class="animate-fade-in space-y-8">
+            <div class="text-center space-y-4 py-8">
+                <div class="inline-block p-3 rounded-full bg-slate-800 border border-slate-700 mb-2 shadow-lg shadow-amber-900/20">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M9 17v4"/><path d="M3 21h4"/></svg>
+                </div>
+                <h2 class="text-3xl font-bold text-white leading-tight">나의 타고난 성향과<br/><span class="text-amber-400">2026년 운명</span> 확인하기</h2>
+                <p class="text-slate-400 max-w-md mx-auto text-sm md:text-base">
+                    사주팔자(四柱八字)를 정밀 분석하여 당신의 본래 기질과<br/>
+                    다가올 미래의 흐름을 심층적으로 풀어드립니다.
+                </p>
+            </div>
+
+            <div class="bg-slate-800/50 backdrop-blur border border-slate-700 rounded-2xl p-6 md:p-8 shadow-2xl">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="space-y-2">
+                        <label class="text-sm font-medium text-amber-200/80">이름</label>
+                        <input type="text" id="input-name" placeholder="홍길동" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-3 focus:outline-none focus:border-amber-500 transition-colors text-white placeholder-slate-600">
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-sm font-medium text-amber-200/80">성별</label>
+                        <div class="flex gap-2">
+                            <button id="btn-male" onclick="setGender('male')" class="flex-1 py-3 rounded-lg border bg-amber-900/30 border-amber-500 text-amber-400 transition-all">남성</button>
+                            <button id="btn-female" onclick="setGender('female')" class="flex-1 py-3 rounded-lg border bg-slate-900 border-slate-700 text-slate-400 transition-all">여성</button>
+                        </div>
+                    </div>
+                    <div class="space-y-2 md:col-span-2">
+                        <label class="text-sm font-medium text-amber-200/80">생년월일 (양력 기준)</label>
+                        <div class="flex gap-2">
+                            <input type="number" id="input-year" value="1995" class="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-3 py-3 text-center focus:outline-none focus:border-amber-500" placeholder="년">
+                            <input type="number" id="input-month" value="1" class="w-20 bg-slate-900 border border-slate-700 rounded-lg px-3 py-3 text-center focus:outline-none focus:border-amber-500" placeholder="월">
+                            <input type="number" id="input-day" value="1" class="w-20 bg-slate-900 border border-slate-700 rounded-lg px-3 py-3 text-center focus:outline-none focus:border-amber-500" placeholder="일">
+                        </div>
+                    </div>
+                    <div class="space-y-2 md:col-span-2">
+                        <label class="text-sm font-medium text-amber-200/80">태어난 시간 (한국 명리학 표준시 적용)</label>
+                        <select id="input-hour" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-3 focus:outline-none focus:border-amber-500 text-white font-mono text-sm md:text-base">
+                            <!-- JS will populate options with correct Zodiac times -->
+                        </select>
+                        <p class="text-xs text-slate-500 mt-1">* 한국 표준시(동경 135도)와 실제 경도 차이를 보정한 명리학 표준 시간입니다.</p>
+                    </div>
+                </div>
+
+                <div class="mt-8">
+                    <button onclick="calculateFortune()" class="w-full bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white font-bold py-4 rounded-xl shadow-lg transform transition hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h12a2 2 0 0 0 2-2v-2H10v2a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v3h4"/><path d="M19 17V5a2 2 0 0 0-2-2H4"/></svg>
+                        운세 및 성향 정밀 분석
+                    </button>
+                    <p class="text-center text-xs text-slate-500 mt-4 leading-relaxed">
+                        * 본 서비스는 양력 생년월일을 기준으로 만세력을 역산하는 알고리즘을 사용합니다.<br/>
+                        태어난 시간을 정확히 선택해야 시주(時柱)가 올바르게 계산됩니다.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 2: Loading -->
+        <div id="loading-section" class="hidden flex flex-col items-center justify-center min-h-[50vh] animate-fade-in space-y-6">
+            <div class="relative">
+                <div class="absolute inset-0 bg-amber-500 blur-xl opacity-20 rounded-full animate-pulse"></div>
+                <div class="loader relative z-10 border-t-amber-400"></div>
+            </div>
+            <div class="text-center space-y-2">
+                <h3 class="text-xl font-bold text-amber-100">천기(天機)를 읽고 있습니다...</h3>
+                <p class="text-slate-400 text-sm" id="loading-text">
+                    사주팔자 구성 분석 중...
+                </p>
+            </div>
+        </div>
+
+        <!-- Section 3: Result -->
+        <div id="result-section" class="hidden animate-fade-in pb-12">
+            
+            <!-- 사주 명식표 -->
+            <div class="bg-slate-800 border border-slate-700 rounded-2xl p-6 mb-8 relative overflow-hidden shadow-xl">
+                <div class="absolute top-0 right-0 p-4 opacity-10 pointer-events-none">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-32 h-32 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+                </div>
+                <h3 class="text-lg font-bold text-amber-400 mb-6 flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg>
+                    <span id="result-name"></span>님의 사주팔자 (四柱八字)
+                </h3>
+                
+                <div class="grid grid-cols-4 gap-2 md:gap-4 text-center select-none" id="saju-table">
+                    <!-- JS Injected -->
+                </div>
+
+                <div class="mt-6 pt-6 border-t border-slate-700 flex flex-wrap gap-4 justify-center text-sm" id="element-counts">
+                    <!-- JS Injected -->
+                </div>
+            </div>
+
+            <!-- 성향 분석 (NEW) -->
+            <div class="space-y-8">
+                <div class="bg-slate-800/80 rounded-xl p-6 border-l-4 border-indigo-500 shadow-lg">
+                    <h4 class="text-xl font-bold text-indigo-200 mb-4 flex items-center gap-2">
+                       🔮 타고난 성향과 기질 (Original Personality)
+                    </h4>
+                    
+                    <div class="space-y-4">
+                        <div class="bg-slate-900/50 p-4 rounded-lg">
+                            <h5 class="text-indigo-400 font-bold text-sm mb-2">✦ 본원(일간)으로 보는 핵심 성격</h5>
+                            <p id="personality-core" class="text-slate-200 leading-relaxed text-sm md:text-base text-justify whitespace-pre-wrap"></p>
+                        </div>
+                        
+                        <div class="grid md:grid-cols-2 gap-4">
+                            <div class="bg-slate-900/50 p-4 rounded-lg">
+                                <h5 class="text-indigo-400 font-bold text-sm mb-2">✦ 사회적 장점</h5>
+                                <p id="personality-strength" class="text-slate-300 text-sm leading-relaxed text-justify whitespace-pre-wrap"></p>
+                            </div>
+                            <div class="bg-slate-900/50 p-4 rounded-lg">
+                                <h5 class="text-indigo-400 font-bold text-sm mb-2">✦ 보완해야 할 점</h5>
+                                <p id="personality-weakness" class="text-slate-300 text-sm leading-relaxed text-justify whitespace-pre-wrap"></p>
+                            </div>
+                        </div>
+
+                        <div class="bg-slate-900/50 p-4 rounded-lg">
+                            <h5 class="text-indigo-400 font-bold text-sm mb-2">✦ 오행 균형 분석</h5>
+                            <p id="personality-balance" class="text-slate-300 text-sm leading-relaxed text-justify whitespace-pre-wrap"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 신년 운세 -->
+                <div class="bg-slate-800/80 rounded-xl p-6 border-l-4 border-amber-500 shadow-lg">
+                    <h4 class="text-xl font-bold text-amber-200 mb-4 flex items-center gap-2">
+                       🌟 2026년 신년 운세 (New Year Fortune)
+                    </h4>
+                    <p id="fortune-general" class="text-slate-200 leading-relaxed text-justify mb-6 whitespace-pre-wrap"></p>
+
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div class="bg-slate-900/50 rounded-lg p-4">
+                            <h5 class="font-bold text-amber-400 mb-2 flex items-center gap-2 text-sm">💰 재물운</h5>
+                            <p id="fortune-wealth" class="text-sm text-slate-300 leading-relaxed text-justify whitespace-pre-wrap"></p>
+                        </div>
+                        <div class="bg-slate-900/50 rounded-lg p-4">
+                            <h5 class="font-bold text-blue-400 mb-2 flex items-center gap-2 text-sm">👔 직업/사업운</h5>
+                            <p id="fortune-career" class="text-sm text-slate-300 leading-relaxed text-justify whitespace-pre-wrap"></p>
+                        </div>
+                        <div class="bg-slate-900/50 rounded-lg p-4">
+                            <h5 class="font-bold text-pink-400 mb-2 flex items-center gap-2 text-sm">❤️ 연애/대인관계</h5>
+                            <p id="fortune-love" class="text-sm text-slate-300 leading-relaxed text-justify whitespace-pre-wrap"></p>
+                        </div>
+                        <div class="bg-slate-900/50 rounded-lg p-4">
+                            <h5 class="font-bold text-green-400 mb-2 flex items-center gap-2 text-sm">🌿 건강운</h5>
+                            <p id="fortune-health" class="text-sm text-slate-300 leading-relaxed text-justify whitespace-pre-wrap"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 개운법 -->
+                <div class="bg-gradient-to-r from-slate-800 to-slate-900 rounded-xl p-6 border border-slate-700 flex flex-col md:flex-row justify-between items-center gap-4">
+                    <div class="text-center md:text-left">
+                        <h5 class="font-bold text-amber-400 mb-1">올해의 개운법(開運法)</h5>
+                        <p class="text-xs text-slate-400">부족한 기운을 채워 운을 틔우는 비법</p>
+                    </div>
+                    <div class="flex gap-4 text-sm">
+                        <div class="bg-slate-950 px-4 py-2 rounded-lg border border-slate-800 text-center">
+                            <span class="text-slate-400 block text-xs mb-1">행운의 색</span>
+                            <span id="lucky-color" class="font-bold text-white"></span>
+                        </div>
+                        <div class="bg-slate-950 px-4 py-2 rounded-lg border border-slate-800 text-center">
+                            <span class="text-slate-400 block text-xs mb-1">행운의 방향</span>
+                            <span id="lucky-direction" class="font-bold text-white"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center mt-12">
+               <button onclick="window.print()" class="bg-slate-700 hover:bg-slate-600 text-white px-6 py-2 rounded-full text-sm font-medium transition-colors mb-2">
+                 결과 인쇄 / PDF 저장
+               </button>
+               <p class="text-slate-600 text-xs">운명은 정해진 것이 아니라, 당신의 의지로 완성됩니다.</p>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // --- Data & Constants ---
+        const HEAVENLY_STEMS = [
+            { char: '甲', element: 'wood', colorClass: 'text-green-500', name: '갑목', desc: '거목, 리더십, 곧음' },
+            { char: '乙', element: 'wood', colorClass: 'text-green-400', name: '을목', desc: '화초, 유연함, 끈기' },
+            { char: '丙', element: 'fire', colorClass: 'text-red-500', name: '병화', desc: '태양, 열정, 솔직함' },
+            { char: '丁', element: 'fire', colorClass: 'text-red-400', name: '정화', desc: '촛불, 섬세함, 온기' },
+            { char: '戊', element: 'earth', colorClass: 'text-yellow-600', name: '무토', desc: '큰산, 신뢰, 묵직함' },
+            { char: '己', element: 'earth', colorClass: 'text-yellow-500', name: '기토', desc: '대지, 실속, 포용' },
+            { char: '庚', element: 'metal', colorClass: 'text-slate-300', name: '경금', desc: '원석, 결단력, 의리' },
+            { char: '辛', element: 'metal', colorClass: 'text-slate-200', name: '신금', desc: '보석, 예리함, 깔끔' },
+            { char: '壬', element: 'water', colorClass: 'text-blue-500', name: '임수', desc: '바다, 지혜, 포용력' },
+            { char: '癸', element: 'water', colorClass: 'text-blue-400', name: '계수', desc: '단비, 감수성, 총명' }
+        ];
+
+        const EARTHLY_BRANCHES = [
+            { char: '子', element: 'water', colorClass: 'text-blue-500', animal: '쥐' },
+            { char: '丑', element: 'earth', colorClass: 'text-yellow-600', animal: '소' },
+            { char: '寅', element: 'wood', colorClass: 'text-green-500', animal: '범' },
+            { char: '卯', element: 'wood', colorClass: 'text-green-400', animal: '토끼' },
+            { char: '辰', element: 'earth', colorClass: 'text-yellow-600', animal: '용' },
+            { char: '巳', element: 'fire', colorClass: 'text-red-500', animal: '뱀' },
+            { char: '午', element: 'fire', colorClass: 'text-red-400', animal: '말' },
+            { char: '未', element: 'earth', colorClass: 'text-yellow-600', animal: '양' },
+            { char: '申', element: 'metal', colorClass: 'text-slate-300', animal: '원숭이' },
+            { char: '酉', element: 'metal', colorClass: 'text-slate-200', animal: '닭' },
+            { char: '戌', element: 'earth', colorClass: 'text-yellow-600', animal: '개' },
+            { char: '亥', element: 'water', colorClass: 'text-blue-500', animal: '돼지' }
+        ];
+
+        const ELEMENT_INFO = {
+            wood: { name: '목(木)', bg: 'bg-green-500', color: 'text-green-500' },
+            fire: { name: '화(火)', bg: 'bg-red-500', color: 'text-red-500' },
+            earth: { name: '토(土)', bg: 'bg-yellow-600', color: 'text-yellow-600' },
+            metal: { name: '금(金)', bg: 'bg-slate-400', color: 'text-slate-400' },
+            water: { name: '수(水)', bg: 'bg-blue-500', color: 'text-blue-500' }
+        };
+
+        const ZODIAC_TIMES = [
+            { name: "자시 (子時)", time: "23:30 ~ 01:29", idx: 0 },
+            { name: "축시 (丑時)", time: "01:30 ~ 03:29", idx: 1 },
+            { name: "인시 (寅時)", time: "03:30 ~ 05:29", idx: 2 },
+            { name: "묘시 (卯時)", time: "05:30 ~ 07:29", idx: 3 },
+            { name: "진시 (辰時)", time: "07:30 ~ 09:29", idx: 4 },
+            { name: "사시 (巳時)", time: "09:30 ~ 11:29", idx: 5 },
+            { name: "오시 (午時)", time: "11:30 ~ 13:29", idx: 6 },
+            { name: "미시 (未時)", time: "13:30 ~ 15:29", idx: 7 },
+            { name: "신시 (申時)", time: "15:30 ~ 17:29", idx: 8 },
+            { name: "유시 (酉時)", time: "17:30 ~ 19:29", idx: 9 },
+            { name: "술시 (戌時)", time: "19:30 ~ 21:29", idx: 10 },
+            { name: "해시 (亥時)", time: "21:30 ~ 23:29", idx: 11 }
+        ];
+
+        // --- Logic Functions ---
+
+        function getGanJi(year, month, day, timeBranchIdx) {
+            // 년주
+            const yearStemIdx = (year - 4) % 10;
+            const yearBranchIdx = (year - 4) % 12;
+            
+            // 월주 (월두법 약식)
+            let monthStemStart = 0;
+            if (yearStemIdx % 5 === 0) monthStemStart = 2; // 갑기 -> 병
+            else if (yearStemIdx % 5 === 1) monthStemStart = 4; // 을경 -> 무
+            else if (yearStemIdx % 5 === 2) monthStemStart = 6; // 병신 -> 경
+            else if (yearStemIdx % 5 === 3) monthStemStart = 8; // 정임 -> 임
+            else if (yearStemIdx % 5 === 4) monthStemStart = 0; // 무계 -> 갑
+            
+            const monthBranchIdx = (month + 1) % 12; // 인월=2월기준이나 여기선 약식
+            const monthStemIdx = (monthStemStart + (month - 2 + 12) % 12) % 10;
+
+            // 일주 (기준일 산출)
+            const baseDate = new Date(1900, 0, 1);
+            const targetDate = new Date(year, month - 1, day);
+            const diffTime = Math.abs(targetDate - baseDate);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            
+            const dayStemIdx = (0 + diffDays) % 10;
+            const dayBranchIdx = (10 + diffDays) % 12;
+
+            // 시주 (시두법)
+            let timeStemStart = 0;
+            if (dayStemIdx % 5 === 0) timeStemStart = 0; // 갑기 -> 갑
+            else if (dayStemIdx % 5 === 1) timeStemStart = 2; // 을경 -> 병
+            else if (dayStemIdx % 5 === 2) timeStemStart = 4; // 병신 -> 무
+            else if (dayStemIdx % 5 === 3) timeStemStart = 6; // 정임 -> 경
+            else if (dayStemIdx % 5 === 4) timeStemStart = 8; // 무계 -> 임
+
+            // timeBranchIdx는 사용자가 선택한 Zodiac Time의 index (0~11)
+            const timeStemIdx = (timeStemStart + timeBranchIdx) % 10;
+
+            return {
+                year: { stem: HEAVENLY_STEMS[yearStemIdx], branch: EARTHLY_BRANCHES[yearBranchIdx] },
+                month: { stem: HEAVENLY_STEMS[monthStemIdx], branch: EARTHLY_BRANCHES[monthBranchIdx] },
+                day: { stem: HEAVENLY_STEMS[dayStemIdx], branch: EARTHLY_BRANCHES[dayBranchIdx] },
+                time: { stem: HEAVENLY_STEMS[timeStemIdx], branch: EARTHLY_BRANCHES[timeBranchIdx] }
+            };
+        }
+
+        function analyzePersonality(saju, counts, name) {
+            const myStem = saju.day.stem;
+            let core = "";
+            let strength = "";
+            let weakness = "";
+            
+            // 일간별 성향 분석 (상세 텍스트 보강)
+            switch (myStem.char) {
+                case '甲':
+                    core = `${name}님은 드넓은 숲에 우뚝 솟은 '거목(甲木)'의 기상을 타고났습니다. 하늘을 향해 곧게 뻗어나가는 나무처럼 상승 욕구와 자존심이 매우 강합니다. 누구에게 굽히기보다는 우두머리가 되어 무리를 이끄는 리더십이 있으며, 한번 목표를 정하면 뚫고 나가는 추진력이 타의 추종을 불허합니다. 어진 성품을 지녀 약한 자를 보호하려는 기질이 있지만, 자신의 주관이 너무 뚜렷해 타협을 어려워하는 면모도 있습니다.`;
+                    strength = "어려움이 닥쳐도 굴하지 않고 뚫고 나가는 강력한 추진력이 가장 큰 장점입니다. 솔직하고 담백하여 뒤끝이 없으며, 책임감이 강해 조직에서 신뢰받는 리더가 됩니다. 새로운 일을 기획하고 시작하는 능력(창의성)이 탁월합니다.";
+                    weakness = "유연성이 부족하여 강한 바람에 부러지듯 큰 시련에 꺾일 수 있습니다. 타인의 조언을 간섭으로 여겨 무시하는 경향이 있으며, 융통성이 없어 주변 사람들을 답답하게 만들기도 합니다. 굽힐 줄 아는 지혜가 필요합니다.";
+                    break;
+                case '乙':
+                    core = `${name}님은 바람에 흔들리지만 꺾이지 않는 '덩굴 식물(乙木)'의 기운입니다. 끈질긴 생명력과 탁월한 환경 적응력이 특징입니다. 거목처럼 혼자 서기보다 주변의 사물이나 사람을 감고 올라가는 지혜가 있어, 처세술이 뛰어나고 실속을 잘 챙깁니다. 겉으로는 부드럽고 유약해 보이지만 내면은 누구보다 강인한 외유내강형 인물입니다.`;
+                    strength = "어떤 환경에서도 살아남는 적응력과 유연함이 무기입니다. 사교성이 좋아 주변 사람들과 두루두루 잘 어울리며, 현실적인 감각이 뛰어나 손해 보는 짓을 하지 않습니다. 난관을 우회하여 목표를 달성하는 전략가적 기질이 있습니다.";
+                    weakness = "혼자 결정하고 책임지는 것을 두려워하여 타인에게 의존하려는 성향이 강할 수 있습니다. 질투심이나 소유욕이 강해 주변 사람과 미묘한 갈등을 빚기도 하며, 맺고 끊음이 불분명하여 오해를 사기도 합니다.";
+                    break;
+                case '丙':
+                    core = `${name}님은 온 세상을 환하게 비추는 '태양(丙火)'과 같은 존재입니다. 숨김없이 자신을 드러내는 솔직함과 넘치는 열정이 매력입니다. 매사에 공명정대하려 노력하며, 불의를 보면 참지 못하는 정의감도 있습니다. 화려한 것을 좋아하고 주목받기를 즐기며, 언제나 에너지 넘치는 모습으로 주변 사람들에게 활력을 불어넣는 분위기 메이커입니다.`;
+                    strength = "뛰어난 언변과 표현력으로 사람들을 설득하고 이끄는 힘이 있습니다. 뒤끝이 없어 싸우고 나서도 금방 털어버리는 쿨한 성격입니다. 예의를 중시하고 밝은 에너지를 발산하여 대인관계가 원만하고 인기가 많습니다.";
+                    weakness = "성격이 급해 실수를 자주 하거나, 싫증을 빨리 내어 마무리가 약할 수 있습니다. 자신의 치부를 드러내기 싫어하여 허세를 부리거나 과시하려는 경향이 있어 실속을 챙기지 못하는 경우가 종종 있습니다.";
+                    break;
+                case '丁':
+                    core = `${name}님은 어둠을 밝히는 은은한 '촛불(丁火)' 혹은 '별빛'의 기운입니다. 겉보기엔 조용하고 차분해 보이나, 내면에는 용광로 같은 뜨거운 열정과 집념을 품고 있습니다. 섬세하고 감수성이 풍부하며, 한 가지 분야에 깊게 파고들어 전문가가 되는 기질이 탁월합니다. 타인을 배려하고 헌신하는 따뜻한 마음씨를 지녔습니다.`;
+                    strength = "무엇이든 꿰뚫어 보는 통찰력과 놀라운 집중력이 강점입니다. 타인의 아픔에 공감하는 능력이 뛰어나 상담이나 봉사 분야에서 빛을 발합니다. 겉으로 드러내지 않으면서도 실속 있게 자신의 목표를 달성하는 외유내강형입니다.";
+                    weakness = "지나치게 예민하여 작은 일에도 상처를 잘 받고, 감정 기복이 심할 수 있습니다. 내면에 쌓인 화가 많아 한번 폭발하면 걷잡을 수 없이 무서워집니다. 의심이 많아 사람을 쉽게 믿지 못하는 경향이 있습니다.";
+                    break;
+                case '戊':
+                    core = `${name}님은 만물을 포용하는 거대한 '산(戊土)'과 같은 기운입니다. 묵직하고 중후한 매력이 있으며, 말과 행동이 신중하여 주변에 깊은 신뢰감을 줍니다. 주관이 뚜렷하여 쉽게 흔들리지 않고, 모든 것을 받아들이는 넓은 포용력으로 중간자적 입장에서 중재하는 역할을 잘 수행합니다. 스케일이 크고 배포가 남다릅니다.`;
+                    strength = "어떤 상황에서도 동요하지 않는 듬직함과 믿음직스러움이 최대 장점입니다. 신용을 목숨처럼 여기며, 포용력이 넓어 많은 사람들이 의지하고 따릅니다. 끈기가 있어 오랜 시간이 걸리는 일도 묵묵히 해냅니다.";
+                    weakness = "행동이 다소 느리고 변화에 둔감하여 좋은 기회를 놓칠 때가 있습니다. 자신의 속마음을 잘 드러내지 않아 무뚝뚝해 보이며, 한번 고집을 부리면 누구도 꺾을 수 없을 만큼 융통성이 부족하여 '고집불통' 소리를 듣기도 합니다.";
+                    break;
+                case '己':
+                    core = `${name}님은 작물을 길러내는 비옥한 '전원(己土)'의 기운입니다. 어머니의 대지처럼 부드럽고 포용력이 있으며, 실속을 중시하는 실리파입니다. 튀는 것을 싫어하고 자신의 분수를 지킬 줄 알며, 꼼꼼하고 세심한 성격으로 주변을 잘 챙깁니다. 교육이나 육성, 기록과 관련된 일에 탁월한 재능을 보입니다.`;
+                    strength = "자기 관리가 철저하고 실수가 적으며, 현실 감각이 매우 뛰어납니다. 다정다감하고 남을 잘 챙겨주어 적을 만들지 않습니다. 다양한 재주를 가지고 있으며, 상황에 맞게 자신을 변화시키는 유연함도 갖추고 있습니다.";
+                    weakness = "의심이 많고 소심하여 매사에 걱정이 끊이지 않을 수 있습니다. 속을 알 수 없어 음흉하다는 오해를 받기도 합니다. 질투심이 강하고 이해타산을 너무 따지다가 인간관계에서 인색하다는 평을 듣기도 합니다.";
+                    break;
+                case '庚':
+                    core = `${name}님은 다듬어지지 않은 거대한 '원석(庚金)'이나 '무쇠'의 기운입니다. 의리와 신념을 생명처럼 여기며, 한번 결심하면 불도저처럼 밀고 나가는 강력한 추진력이 있습니다. 맺고 끊음이 확실하여 우유부단한 것을 가장 싫어합니다. 혁명가적 기질이 있어 잘못된 것을 바로잡으려는 정의감이 강합니다.`;
+                    strength = "결단력과 추진력은 타의 추종을 불허합니다. 공과 사가 분명하고 리더십이 있어 조직을 이끄는 장군감입니다. 의리가 있어 한번 내 사람은 끝까지 챙기며, 투박하지만 솔직한 매력이 있습니다.";
+                    weakness = "자신의 주장이 너무 강해 독선적으로 보일 수 있으며, 직설적인 화법으로 타인에게 상처를 주기 쉽습니다. 융통성이 부족하고 타협할 줄 몰라 적을 많이 만들 수 있으니 부드러움을 배워야 합니다.";
+                    break;
+                case '辛':
+                    core = `${name}님은 정교하게 세공된 빛나는 '보석(辛金)'의 기운입니다. 섬세하고 예리하며, 깔끔하고 완벽한 것을 추구합니다. 자존심이 매우 강하여 무시당하는 것을 참지 못하며, 냉철한 이성으로 상황을 정확하게 판단하는 능력이 있습니다. 감각이 세련되어 예술적 재능이나 미적 감각이 뛰어납니다.`;
+                    strength = "치밀하고 정확한 일 처리가 돋보이며, 깔끔하고 단정하여 호감을 줍니다. 예리한 분석력과 직관력을 갖추고 있어 문제의 핵심을 잘 파악합니다. 야무지고 당차서 어떤 어려움 속에서도 자신의 가치를 증명해냅니다.";
+                    weakness = "지나치게 예민하고 까다로워 주변 사람을 피곤하게 할 수 있습니다. 차갑고 냉소적인 태도로 인해 인간관계가 좁아질 수 있습니다. 한번 앙심을 품으면 오래가는 편이라 마음을 넓게 쓰는 연습이 필요합니다.";
+                    break;
+                case '壬':
+                    core = `${name}님은 끝없이 펼쳐진 넓은 '바다(壬水)'의 기운입니다. 지혜롭고 총명하며, 무엇이든 담아내는 거대한 포용력이 있습니다. 유연한 사고방식을 가지고 있어 임기응변에 능하고, 스케일이 커서 작은 일에 연연하지 않습니다. 창의적이고 기획력이 뛰어나며, 자유로운 영혼을 가진 활동가입니다.`;
+                    strength = "상황에 따라 모습을 바꾸는 물처럼 유연하고 처세술이 뛰어납니다. 깊은 지혜와 통찰력으로 어려운 문제도 쉽게 해결책을 찾아냅니다. 친화력이 좋아 누구와도 잘 어울리며, 에너지가 넘쳐 활동 범위가 넓습니다.";
+                    weakness = "생각이 너무 많아 실행력이 떨어지거나 변덕을 부릴 수 있습니다. 속을 알 수 없는 모호함 때문에 음흉하다는 오해를 사기도 합니다. 이성 문제로 구설수에 오를 수 있으니 자기 관리가 필요합니다.";
+                    break;
+                case '癸':
+                    core = `${name}님은 대지를 적시는 촉촉한 '봄비(癸水)'나 '시냇물'의 기운입니다. 맑고 순수하며 감수성이 풍부합니다. 지혜가 뛰어나고 아이디어가 샘솟으며, 조용히 스며들어 주변을 변화시키는 부드러운 카리스마가 있습니다. 타인의 마음을 잘 헤아리고 배려하는 세심함이 돋보입니다.`;
+                    strength = "천재적인 두뇌 회전과 기획력을 가지고 있습니다. 다정다감하고 부드러운 성품으로 주변 사람들의 마음을 잘 얻습니다. 환경 변화에 민감하게 반응하여 빠르게 대처하는 순발력이 뛰어납니다.";
+                    weakness = "지나치게 생각이 많아 걱정과 불안을 사서 하는 경향이 있습니다. 자기중심적으로 생각하거나 계산적인 면모를 보일 때가 있습니다. 끈기가 부족하여 마무리가 흐지부지될 수 있으니 지구력을 길러야 합니다.";
+                    break;
+            }
+
+            // 오행 균형 분석 (상세 보강)
+            let balance = "오행이 대체로 골고루 분포되어 있어 평안하고 무난한 삶을 영위할 수 있는 복받은 사주입니다. 어느 한쪽으로 치우치지 않아 성격이 원만하고 대인관계가 좋습니다.";
+            
+            const maxElement = Object.keys(counts).reduce((a, b) => counts[a] > counts[b] ? a : b);
+            const maxVal = counts[maxElement];
+            
+            if (maxVal >= 3) {
+                if (maxElement === 'wood') balance = `목(木)의 기운이 과다합니다. 의욕이 넘치고 시작은 잘하지만, 뒷심이 부족하여 용두사미가 되기 쉽습니다. 고집이 세고 남의 말을 잘 듣지 않아 실패를 자초할 수 있으니 경청하는 자세가 필요합니다. 금(金)의 기운(흰색, 서쪽)을 가까이하여 가지치기를 해주어야 운이 트입니다.`;
+                else if (maxElement === 'fire') balance = `화(火)의 기운이 지나치게 강합니다. 열정이 넘치다 못해 폭발적이며, 성격이 급해 실수가 잦습니다. 감정 조절이 어려워 대인관계에서 트러블이 생길 수 있습니다. 수(水)의 기운(검정, 북쪽)으로 뜨거운 열기를 식혀주어야 건강과 재물을 지킬 수 있습니다.`;
+                else if (maxElement === 'earth') balance = `토(土)의 기운이 태과합니다. 신의는 있으나 고집이 황소고집이라 변화를 거부하고 답답한 면이 있습니다. 생각이 많아 실행이 늦어지고 게을러질 수 있습니다. 목(木)의 기운(초록, 동쪽)으로 땅을 소토해주어야 꽉 막힌 운이 뚫리고 발전할 수 있습니다.`;
+                else if (maxElement === 'metal') balance = `금(金)의 기운이 너무 강합니다. 결단력은 좋으나 냉정하고 독선적이라 주변에 사람이 떠날 수 있습니다. 살기(殺氣)가 있어 본의 아니게 남에게 상처를 줍니다. 화(火)의 기운(빨강, 남쪽)으로 강한 금을 제련해주어야 귀하게 쓰이는 그릇이 됩니다.`;
+                else if (maxElement === 'water') balance = `수(水)의 기운이 넘쳐흐릅니다. 머리는 비상하나 생각이 너무 많아 우울증이나 불면증에 시달릴 수 있습니다. 음란한 기운이 돌 수 있어 이성 문제를 조심해야 합니다. 토(土)의 기운(노랑, 중앙)으로 둑을 쌓아 물길을 잡아주어야 재물이 모이고 안정을 찾습니다.`;
+            } else if (Math.min(...Object.values(counts)) === 0) {
+                balance = "사주에 부족한 오행(결핍)이 있어 삶의 굴곡이 느껴질 수 있습니다. 없는 기운을 억지로 채우기보다는, 내가 가진 강점을 극대화하는 것이 현대 명리학의 지혜입니다. 다만 부족한 오행에 해당하는 색상이나 방향을 생활 속에서 활용하는 개운법(풍수)을 적용하면 심리적 안정과 운의 흐름을 개선하는 데 큰 도움이 됩니다.";
+            }
+
+            return { core, strength, weakness, balance };
+        }
+
+        function generateFortune(saju, counts, name) {
+            const myElement = saju.day.stem.element;
+            let generalLuck = "";
+            
+            // 2026 병오년 (화 기운 강함) 상세 운세
+            if (myElement === 'wood') {
+                generalLuck = `2026년은 병오(丙午)년으로, 강렬한 태양이 ${name}님의 나무를 비추는 형국입니다. 목생화(木生火)의 흐름으로, 당신이 가진 재능과 잠재력이 꽃처럼 만개하여 세상 밖으로 드러나는 시기입니다. \n\n그동안 준비해왔던 프로젝트나 공부가 빛을 발하며, 당신의 이름이 널리 알려지고 명예가 드높아집니다. 표현력이 좋아지니 예술, 창작, 발표 등 자기를 드러내는 일에서 큰 성과를 거둘 것입니다. \n\n다만, 자신의 에너지를 태워서 꽃을 피우는 형국이라 체력 소모가 극심할 수 있습니다. '번아웃 증후군'을 주의해야 하며, 과도한 열정이 자만심으로 비치지 않도록 겸손함을 유지한다면 최고의 한 해가 될 것입니다.`;
+            } else if (myElement === 'fire') {
+                generalLuck = `불의 기운을 가진 ${name}님에게 2026년은 거대한 불기둥이 더해지는 격입니다. 비견과 겁재가 강하게 들어오는 시기로, 주변에 친구, 동료, 혹은 경쟁자가 구름처럼 몰려듭니다. \n\n혼자서는 불가능했던 큰 일을 동료들과 협력하여 이루어낼 수 있는 강한 세력을 얻게 됩니다. 독립심과 주체성이 강해져 창업을 하거나 프리랜서로 독립하기에 아주 좋은 시기입니다. \n\n그러나 '군겁쟁재(여러 사람이 재물을 두고 다툼)'의 현상이 일어날 수 있습니다. 들어오는 돈만큼 나가는 돈도 많고, 믿었던 사람에게 배신을 당하거나 몫을 나누어야 할 상황이 생길 수 있습니다. 독단적인 결정을 피하고 이익 분배를 명확히 해야 합니다.`;
+            } else if (myElement === 'earth') {
+                generalLuck = `흙의 기운을 가진 ${name}님은 올해 화생토(火生土)의 기운을 받아 메마른 땅이 단단해지고 비옥해집니다. 강력한 불의 기운이 인성(도장, 문서, 후원)으로 작용하여, 윗사람의 전폭적인 지원을 받거나 문서와 관련된 큰 이득을 볼 수 있습니다. \n\n학업 성취도가 높아지고 자격증 취득, 합격, 승진 등 인정받는 일에 매우 길한 운세입니다. 부동산 매매나 계약 등 문서운이 따르니 꼼꼼히 살피면 큰 재산을 불릴 기회가 옵니다. \n\n하지만 너무 생각이 많아져 행동이 굼뜰 수 있고, 모친이나 윗사람의 간섭으로 인해 스트레스를 받을 수도 있습니다. 현실에 안주하기보다 배운 것을 적극적으로 써먹으려는 노력이 필요합니다.`;
+            } else if (myElement === 'metal') {
+                generalLuck = `금의 기운을 가진 ${name}님에게 병오년의 불은 원석을 용광로에 넣어 제련하는 관성(직장, 명예, 통제)의 운입니다. 편안하게 쉬기보다는 막중한 책임감과 업무가 주어지는 바쁜 한 해가 될 것입니다. \n\n직장에서는 승진의 기회가 찾아오고, 사회적으로는 감투를 쓰거나 명예가 올라가는 등 권위가 상승합니다. 여성의 경우 능력 있는 배우자를 만날 수 있는 좋은 운입니다. \n\n그러나 불이 너무 강해 금이 녹아내릴 수 있으니, 과도한 스트레스와 압박감을 주의해야 합니다. 시련과 고통은 당신을 더욱 빛나는 보석으로 만들기 위한 과정임을 명심하고, 원칙을 지키며 정면 돌파하면 크게 성공할 것입니다.`;
+            } else { // water
+                generalLuck = `수의 기운을 가진 ${name}님에게 올해는 수극화(수극화)의 원리로 내가 극하여 취하는 재성(재물, 결과)의 운이 아주 강하게 들어옵니다. \n\n노력한 만큼 확실한 결과물이 눈에 보이고, 재물운의 흐름이 매우 원활하여 경제적 성취를 이루기 최적의 시기입니다. 사업가는 활동 무대가 넓어지고 새로운 시장을 개척하게 되며, 직장인은 성과급이나 연봉 인상을 기대할 수 있습니다. \n\n하지만 불기운이 강해 물이 증발해버릴 수 있는 '재다신약'의 위험이 있습니다. 돈을 벌려다 건강을 잃을 수 있으니 체력 관리가 필수입니다. 욕심을 부려 무리한 확장을 하기보다는 실속을 챙기며 내실을 다지는 지혜가 필요합니다.`;
+            }
+
+            // 재물운 상세
+            let wealthLuck = "";
+            if (counts[myElement] >= 3) {
+                wealthLuck = "자존심과 경쟁심이 강해져 돈을 쓸 일이 많아집니다. 친구나 동료들과 어울리며 유흥비 지출이 늘어나거나, 겉치레를 위해 과소비를 할 수 있습니다. 특히 귀가 얇아져 남의 말만 믿고 투자했다가는 큰 손실을 볼 수 있으니 '보증'과 '동업'은 절대 금물입니다. 현금보다는 묶어두는 적금이나 부동산 형태의 자산 관리가 유리합니다.";
+            } else if (counts.fire >= 3) {
+                wealthLuck = "재물에 대한 욕망은 크지만, 불이 너무 강해 돈이 녹아버리는 형국입니다. 투기성 자산(주식, 코인)에 손을 댔다가는 마음고생을 심하게 할 수 있습니다. 올해는 '한탕'을 노리기보다 본업에 충실하여 고정 수입을 늘리는 것이 최선입니다. 여름철에 예상치 못한 큰 지출이 발생할 수 있으니 비상금을 미리 확보해두세요.";
+            } else {
+                wealthLuck = "재물운의 흐름이 강물처럼 유연하고 좋습니다. 횡재수보다는 정당한 땀의 대가가 확실하게 주어지는 정재(正財)의 운입니다. 성실하게 쌓아올린 신용이 돈이 되어 돌아오며, 작은 돈들이 모여 태산을 이루는 격입니다. 재테크 공부를 시작하거나 장기적인 관점의 투자를 하기에 아주 좋은 시기입니다.";
+            }
+
+            // 직업운 상세
+            let careerLuck = "";
+            if (myElement === 'water' || myElement === 'metal') {
+                careerLuck = "하늘의 기운이 당신의 관운(직업운)을 돕고 있습니다. 직장 내에서 능력을 인정받아 승진하거나, 더 좋은 조건으로 스카우트 제의를 받을 수 있는 강력한 상승운입니다. 리더십을 발휘할 기회가 많아지니 주저하지 말고 앞에 나서서 책임을 지십시오. 다만, 아랫사람을 너무 닦달하면 하극상이 일어날 수 있으니 덕으로 감싸야 합니다.";
+            } else {
+                careerLuck = "기존의 방식에서 벗어나 새로운 변화를 시도해야 할 때입니다. 창의적인 아이디어가 샘솟으니 기획, 마케팅, 예술 분야 종사자는 탁월한 성과를 낼 수 있습니다. 사업가는 업종을 변경하거나 새로운 아이템을 런칭하기에 적기입니다. 직장인은 부서 이동이나 이직을 통해 분위기를 쇄신하는 것이 길합니다. 변화를 두려워하지 마세요.";
+            }
+
+            // 연애운 상세
+            let loveLuck = "올해는 강력한 '도화살(복숭아꽃)'의 기운이 작용하여 당신의 매력이 밖으로 한껏 발산됩니다. 가만히 있어도 이성들이 꼬이는 형국이라, 솔로에게는 더할 나위 없이 좋은 연애의 황금기입니다. 소개팅보다는 자연스러운 모임이나 취미 활동에서 운명의 상대를 만날 확률이 높습니다. \n기혼자나 커플은 배우자와의 관계가 더욱 뜨거워질 수 있으나, 자칫하면 삼각관계나 불필요한 오해로 인한 구설수에 오를 수 있으니 처신에 주의해야 합니다. 색정적인 유혹을 경계하고 맺고 끊음을 확실히 하십시오.";
+
+            // 건강운 상세
+            let healthLuck = "";
+            if (counts.fire > 2) {
+                healthLuck = "화기(火氣)가 태과하여 심장, 소장, 혈관 계통에 무리가 갈 수 있습니다. 가슴이 두근거리거나 불면증, 안구 건조증이 생길 수 있으니 주의하세요. 욱하는 성질을 다스리지 않으면 화병이 생길 수 있습니다. 명상이나 요가로 열을 내리고, 물을 자주 마시는 것이 최고의 보약입니다.";
+            } else if (counts.wood > 2) {
+                healthLuck = "목기(木氣)가 강하여 간, 담, 신경계통의 피로가 누적되기 쉽습니다. 근육이 뭉치거나 경련이 일어날 수 있으니 틈틈이 스트레칭을 해주어야 합니다. 과음은 간에 치명적이니 절주가 필수입니다. 충분한 수면을 통해 뇌를 쉬게 해주세요.";
+            } else {
+                healthLuck = "전반적으로 활력이 넘치고 건강한 한 해가 될 것입니다. 다만, 너무 과신하여 몸을 혹사시키면 면역력이 떨어져 환절기 호흡기 질환이나 알레르기로 고생할 수 있습니다. 규칙적인 유산소 운동과 등산이 운을 트이게 하는 최고의 건강 관리법입니다.";
+            }
+
+            // 행운 요소
+            const luckyColor = counts.fire < 2 ? '붉은색 (Red) - 열정과 활력' : counts.water < 2 ? '검은색 (Black) - 지혜와 휴식' : '황금색 (Gold) - 결실과 완성';
+            const luckyDirection = counts.wood < 2 ? '동쪽 (East) - 시작과 생기' : '남쪽 (South) - 명예와 발전';
+
+            return { generalLuck, wealthLuck, careerLuck, loveLuck, healthLuck, luckyColor, luckyDirection };
+        }
+
+        // --- UI Interactions ---
+
+        let gender = 'male';
+
+        function setGender(g) {
+            gender = g;
+            const btnMale = document.getElementById('btn-male');
+            const btnFemale = document.getElementById('btn-female');
+            
+            if (g === 'male') {
+                btnMale.className = "flex-1 py-3 rounded-lg border bg-amber-900/30 border-amber-500 text-amber-400 transition-all";
+                btnFemale.className = "flex-1 py-3 rounded-lg border bg-slate-900 border-slate-700 text-slate-400 transition-all";
+            } else {
+                btnMale.className = "flex-1 py-3 rounded-lg border bg-slate-900 border-slate-700 text-slate-400 transition-all";
+                btnFemale.className = "flex-1 py-3 rounded-lg border bg-amber-900/30 border-amber-500 text-amber-400 transition-all";
+            }
+        }
+
+        function init() {
+            // 시간 옵션 생성 (Zodiac Time)
+            const hourSelect = document.getElementById('input-hour');
+            ZODIAC_TIMES.forEach(z => {
+                const option = document.createElement('option');
+                option.value = z.idx;
+                option.text = `${z.name} : ${z.time}`;
+                // 기본값 오시(낮 12시 포함)
+                if (z.idx === 6) option.selected = true;
+                hourSelect.appendChild(option);
+            });
+        }
+
+        function calculateFortune() {
+            const name = document.getElementById('input-name').value;
+            if (!name) {
+                alert("성함을 입력해주세요.");
+                return;
+            }
+
+            const year = parseInt(document.getElementById('input-year').value);
+            const month = parseInt(document.getElementById('input-month').value);
+            const day = parseInt(document.getElementById('input-day').value);
+            const timeBranchIdx = parseInt(document.getElementById('input-hour').value);
+
+            // UI 전환 (Input -> Loading)
+            document.getElementById('input-section').classList.add('hidden');
+            document.getElementById('loading-section').classList.remove('hidden');
+
+            // 텍스트 애니메이션
+            const loadingTexts = [
+                "사주팔자 만세력 분석 중...",
+                "오행의 과다와 결핍 측정 중...",
+                "본원(本元)의 기질과 특성 파악 중...",
+                "2026년 신년 운세 대입 중..."
+            ];
+            let textIdx = 0;
+            const textInterval = setInterval(() => {
+                textIdx = (textIdx + 1) % loadingTexts.length;
+                document.getElementById('loading-text').innerText = loadingTexts[textIdx];
+            }, 600);
+
+            // 계산 및 결과 표시 (2.5초 후)
+            setTimeout(() => {
+                clearInterval(textInterval);
+                const saju = getGanJi(year, month, day, timeBranchIdx);
+                
+                // 오행 카운트
+                const counts = { wood: 0, fire: 0, earth: 0, metal: 0, water: 0 };
+                [saju.year, saju.month, saju.day, saju.time].forEach(p => {
+                    counts[p.stem.element]++;
+                    counts[p.branch.element]++;
+                });
+
+                const personality = analyzePersonality(saju, counts, name);
+                const fortune = generateFortune(saju, counts, name);
+
+                renderResult(name, saju, counts, personality, fortune);
+
+                document.getElementById('loading-section').classList.add('hidden');
+                document.getElementById('result-section').classList.remove('hidden');
+                document.getElementById('reset-btn').classList.remove('hidden');
+                window.scrollTo(0, 0);
+
+            }, 2500);
+        }
+
+        function renderResult(name, saju, counts, personality, fortune) {
+            document.getElementById('result-name').innerText = name;
+
+            // 사주 테이블 렌더링
+            const sajuTable = document.getElementById('saju-table');
+            sajuTable.innerHTML = `
+                <div class="space-y-2">
+                    <div class="text-xs text-slate-400 uppercase tracking-widest">시주 (Time)</div>
+                    <div class="text-3xl md:text-4xl serif font-bold ${saju.time.stem.colorClass}">${saju.time.stem.char}</div>
+                    <div class="text-3xl md:text-4xl serif font-bold ${saju.time.branch.colorClass}">${saju.time.branch.char}</div>
+                    <div class="text-xs text-slate-500 mt-1">${saju.time.branch.animal}</div>
+                </div>
+                <div class="space-y-2 bg-slate-900/50 rounded-lg py-2 border border-amber-500/30">
+                    <div class="text-xs text-amber-500 font-bold uppercase tracking-widest">일주 (Day)</div>
+                    <div class="text-3xl md:text-4xl serif font-bold ${saju.day.stem.colorClass}">${saju.day.stem.char}</div>
+                    <div class="text-3xl md:text-4xl serif font-bold ${saju.day.branch.colorClass}">${saju.day.branch.char}</div>
+                    <div class="text-xs text-slate-500 mt-1">본원(나)</div>
+                </div>
+                <div class="space-y-2">
+                    <div class="text-xs text-slate-400 uppercase tracking-widest">월주 (Month)</div>
+                    <div class="text-3xl md:text-4xl serif font-bold ${saju.month.stem.colorClass}">${saju.month.stem.char}</div>
+                    <div class="text-3xl md:text-4xl serif font-bold ${saju.month.branch.colorClass}">${saju.month.branch.char}</div>
+                    <div class="text-xs text-slate-500 mt-1">${saju.month.branch.animal}</div>
+                </div>
+                <div class="space-y-2">
+                    <div class="text-xs text-slate-400 uppercase tracking-widest">년주 (Year)</div>
+                    <div class="text-3xl md:text-4xl serif font-bold ${saju.year.stem.colorClass}">${saju.year.stem.char}</div>
+                    <div class="text-3xl md:text-4xl serif font-bold ${saju.year.branch.colorClass}">${saju.year.branch.char}</div>
+                    <div class="text-xs text-slate-500 mt-1">${saju.year.branch.animal}</div>
+                </div>
+            `;
+
+            // 오행 카운트 렌더링
+            const countContainer = document.getElementById('element-counts');
+            countContainer.innerHTML = '';
+            Object.keys(ELEMENT_INFO).forEach(key => {
+                const info = ELEMENT_INFO[key];
+                const count = counts[key];
+                countContainer.innerHTML += `
+                    <div class="flex items-center gap-1.5">
+                        <span class="w-3 h-3 rounded-full ${info.bg}"></span>
+                        <span class="text-slate-300">${info.name}:</span>
+                        <span class="font-bold text-white">${count}</span>
+                    </div>
+                `;
+            });
+
+            // 성향 데이터 주입
+            document.getElementById('personality-core').innerText = personality.core;
+            document.getElementById('personality-strength').innerText = personality.strength;
+            document.getElementById('personality-weakness').innerText = personality.weakness;
+            document.getElementById('personality-balance').innerText = personality.balance;
+
+            // 운세 데이터 주입
+            document.getElementById('fortune-general').innerText = fortune.generalLuck;
+            document.getElementById('fortune-wealth').innerText = fortune.wealthLuck;
+            document.getElementById('fortune-career').innerText = fortune.careerLuck;
+            document.getElementById('fortune-love').innerText = fortune.loveLuck;
+            document.getElementById('fortune-health').innerText = fortune.healthLuck;
+            document.getElementById('lucky-color').innerText = fortune.luckyColor;
+            document.getElementById('lucky-direction').innerText = fortune.luckyDirection;
+        }
+
+        function resetApp() {
+            document.getElementById('result-section').classList.add('hidden');
+            document.getElementById('input-section').classList.remove('hidden');
+            document.getElementById('reset-btn').classList.add('hidden');
+            window.scrollTo(0, 0);
+        }
+
+        // 앱 초기화
+        init();
+
+    </script>
+</body>
+</html>

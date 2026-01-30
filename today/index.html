@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>운명의 서 - 정통 명리학 오늘의 운세</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300;400;600;700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: #1a1a1a;
+            color: #e5e5e5;
+            background-image: radial-gradient(#2d2d2d 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+        .serif {
+            font-family: 'Noto Serif KR', serif;
+        }
+        .wood-pattern {
+            background-color: #2c1810;
+            background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M20 20c0-11.05-8.95-20-20-20s-20 8.95-20 20 8.95 20 20 20 20-8.95 20-20zm0 0c0 11.05 8.95 20 20 20s20-8.95 20-20-8.95-20-20-20-20 8.95-20 20z' fill='%233e2723' fill-opacity='0.4' fill-rule='evenodd'/%3E%3C/svg%3E");
+        }
+        .card-bg {
+            background: rgba(30, 30, 30, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 215, 0, 0.1);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+        .gold-text {
+            color: #d4af37;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+        }
+        .input-style {
+            background-color: #2d2d2d;
+            border: 1px solid #444;
+            color: white;
+            transition: all 0.3s ease;
+        }
+        .input-style:focus {
+            border-color: #d4af37;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.2);
+        }
+        .btn-gold {
+            background: linear-gradient(135deg, #d4af37 0%, #aa8a2e 100%);
+            color: #1a1a1a;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        .btn-gold:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(212, 175, 55, 0.3);
+        }
+        .fade-in {
+            animation: fadeIn 0.8s ease-out forwards;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .spin-slow {
+            animation: spin 10s linear infinite;
+        }
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .manse-box {
+            border: 1px solid #444;
+            border-radius: 8px;
+            padding: 10px;
+            text-align: center;
+            background: #252525;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-center p-4">
+
+    <!-- Header -->
+    <header class="text-center mb-8 fade-in">
+        <div class="mb-4 inline-block relative">
+            <div class="absolute inset-0 bg-yellow-500 rounded-full blur-2xl opacity-10"></div>
+            <svg class="w-16 h-16 mx-auto text-yellow-600 spin-slow relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+        </div>
+        <h1 class="text-4xl md:text-5xl font-bold serif gold-text mb-2">운명의 서</h1>
+        <p class="text-gray-400 text-sm md:text-base">명리학으로 풀어보는 당신의 오늘</p>
+    </header>
+
+    <!-- Main Container -->
+    <main class="w-full max-w-2xl fade-in" style="animation-delay: 0.2s;">
+        
+        <!-- Input Form -->
+        <div id="inputSection" class="card-bg rounded-2xl p-6 md:p-10 wood-pattern relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-yellow-600 to-transparent opacity-50"></div>
+            
+            <h2 class="text-2xl serif text-center mb-8 text-white">사주 정보 입력</h2>
+            
+            <form id="sajuForm" class="space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- 이름 -->
+                    <div>
+                        <label class="block text-sm text-gray-400 mb-2">이름 (선택)</label>
+                        <input type="text" id="username" placeholder="홍길동" class="w-full p-3 rounded-lg input-style">
+                    </div>
+                    <!-- 성별 -->
+                    <div>
+                        <label class="block text-sm text-gray-400 mb-2">성별</label>
+                        <div class="flex space-x-4">
+                            <label class="flex-1 cursor-pointer">
+                                <input type="radio" name="gender" value="male" class="peer hidden" checked>
+                                <div class="w-full p-3 rounded-lg border border-gray-600 text-center peer-checked:bg-blue-900 peer-checked:border-blue-500 hover:bg-gray-700 transition">남성</div>
+                            </label>
+                            <label class="flex-1 cursor-pointer">
+                                <input type="radio" name="gender" value="female" class="peer hidden">
+                                <div class="w-full p-3 rounded-lg border border-gray-600 text-center peer-checked:bg-red-900 peer-checked:border-red-500 hover:bg-gray-700 transition">여성</div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- 생년월일 -->
+                    <div>
+                        <label class="block text-sm text-gray-400 mb-2">생년월일 (양력)</label>
+                        <input type="date" id="birthdate" required class="w-full p-3 rounded-lg input-style">
+                    </div>
+                    <!-- 태어난 시간 -->
+                    <div>
+                        <label class="block text-sm text-gray-400 mb-2">태어난 시간</label>
+                        <select id="birthtime" class="w-full p-3 rounded-lg input-style">
+                            <option value="unknown">모름</option>
+                            <option value="0">자시 (23:30 ~ 01:29)</option>
+                            <option value="1">축시 (01:30 ~ 03:29)</option>
+                            <option value="2">인시 (03:30 ~ 05:29)</option>
+                            <option value="3">묘시 (05:30 ~ 07:29)</option>
+                            <option value="4">진시 (07:30 ~ 09:29)</option>
+                            <option value="5">사시 (09:30 ~ 11:29)</option>
+                            <option value="6">오시 (11:30 ~ 13:29)</option>
+                            <option value="7">미시 (13:30 ~ 15:29)</option>
+                            <option value="8">신시 (15:30 ~ 17:29)</option>
+                            <option value="9">유시 (17:30 ~ 19:29)</option>
+                            <option value="10">술시 (19:30 ~ 21:29)</option>
+                            <option value="11">해시 (21:30 ~ 23:29)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button type="submit" class="w-full py-4 rounded-xl btn-gold text-lg mt-8 shadow-lg">
+                    운세 확인하기
+                </button>
+            </form>
+        </div>
+
+        <!-- Loading Section -->
+        <div id="loadingSection" class="hidden text-center py-20">
+            <div class="inline-block animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-yellow-500 mb-4"></div>
+            <p class="text-xl serif text-gray-300 animate-pulse">천지 기운을 읽고 있습니다...</p>
+        </div>
+
+        <!-- Result Section -->
+        <div id="resultSection" class="hidden space-y-8">
+            
+            <!-- User Info & Manseok -->
+            <div class="card-bg rounded-2xl p-6 border-t-4 border-yellow-600">
+                <div class="flex flex-col md:flex-row justify-between items-center mb-6">
+                    <h2 class="text-2xl serif gold-text"><span id="resultName"></span>님의 명조</h2>
+                    <span id="currentDateDisplay" class="text-sm text-gray-400 mt-2 md:mt-0"></span>
+                </div>
+                
+                <div class="grid grid-cols-4 gap-2 md:gap-4 text-center mb-4">
+                    <div class="manse-box">
+                        <div class="text-xs text-gray-500 mb-1">시주</div>
+                        <div id="hourPillar" class="text-xl md:text-2xl font-bold serif text-white">-</div>
+                    </div>
+                    <div class="manse-box border-yellow-600/50 bg-yellow-900/10">
+                        <div class="text-xs text-yellow-500 mb-1">일주(본인)</div>
+                        <div id="dayPillar" class="text-xl md:text-2xl font-bold serif gold-text">-</div>
+                    </div>
+                    <div class="manse-box">
+                        <div class="text-xs text-gray-500 mb-1">월주</div>
+                        <div id="monthPillar" class="text-xl md:text-2xl font-bold serif text-white">-</div>
+                    </div>
+                    <div class="manse-box">
+                        <div class="text-xs text-gray-500 mb-1">년주</div>
+                        <div id="yearPillar" class="text-xl md:text-2xl font-bold serif text-white">-</div>
+                    </div>
+                </div>
+                <div class="text-center">
+                    <p id="myElement" class="text-sm text-gray-300"></p>
+                </div>
+            </div>
+
+            <!-- Total Luck Score -->
+            <div class="bg-gradient-to-r from-gray-900 to-gray-800 rounded-2xl p-8 text-center shadow-lg border border-gray-700">
+                <h3 class="text-xl serif text-gray-300 mb-4">오늘의 종합 운세 지수</h3>
+                <div class="relative pt-1">
+                    <div class="flex mb-2 items-center justify-between">
+                        <span id="scoreComment" class="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-yellow-600 bg-yellow-200">
+                            운수대통
+                        </span>
+                        <div class="text-right">
+                            <span id="scoreValue" class="text-3xl font-bold text-yellow-500">90</span>
+                            <span class="text-sm text-gray-400">/ 100</span>
+                        </div>
+                    </div>
+                    <div class="overflow-hidden h-2 mb-4 text-xs flex rounded bg-gray-700">
+                        <div id="scoreBar" style="width:0%" class="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-yellow-500 transition-all duration-1000 ease-out"></div>
+                    </div>
+                </div>
+                <p id="totalFortuneText" class="text-gray-300 leading-relaxed mt-4 break-keep">
+                    <!-- JS generated text -->
+                </p>
+            </div>
+
+            <!-- New Section: Special Advice (Caution, Good Energy, Prediction) -->
+            <div class="card-bg rounded-xl p-6 border border-gray-700 relative overflow-hidden">
+                <div class="absolute right-0 top-0 w-24 h-24 bg-purple-500 blur-3xl opacity-10"></div>
+                <h3 class="text-xl serif gold-text mb-6 text-center">오늘의 천기누설(天機漏洩)</h3>
+                
+                <div class="space-y-5">
+                    <!-- Caution -->
+                    <div class="flex flex-col sm:flex-row gap-3 sm:items-start border-b border-gray-700 pb-4 last:border-0 last:pb-0">
+                        <div class="flex items-center sm:w-24 shrink-0 text-red-400 font-bold">
+                            <span class="mr-2 text-xl">⚡</span>
+                            <span>주의</span>
+                        </div>
+                        <p id="cautionText" class="text-sm text-gray-300 leading-relaxed break-keep flex-1"></p>
+                    </div>
+
+                    <!-- Good Energy -->
+                    <div class="flex flex-col sm:flex-row gap-3 sm:items-start border-b border-gray-700 pb-4 last:border-0 last:pb-0">
+                        <div class="flex items-center sm:w-24 shrink-0 text-green-400 font-bold">
+                            <span class="mr-2 text-xl">🍀</span>
+                            <span>길운</span>
+                        </div>
+                        <p id="goodText" class="text-sm text-gray-300 leading-relaxed break-keep flex-1"></p>
+                    </div>
+
+                    <!-- Prediction -->
+                    <div class="flex flex-col sm:flex-row gap-3 sm:items-start">
+                        <div class="flex items-center sm:w-24 shrink-0 text-purple-400 font-bold">
+                            <span class="mr-2 text-xl">🔮</span>
+                            <span>예언</span>
+                        </div>
+                        <p id="predictionText" class="text-sm text-gray-300 leading-relaxed break-keep flex-1"></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Detailed Fortunes Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Wealth -->
+                <div class="card-bg rounded-xl p-6 hover:bg-gray-800 transition duration-300">
+                    <div class="flex items-center mb-3">
+                        <span class="text-2xl mr-3">💰</span>
+                        <h4 class="text-lg font-bold text-gray-200">재물운</h4>
+                    </div>
+                    <p id="wealthText" class="text-sm text-gray-400 leading-relaxed break-keep"></p>
+                </div>
+
+                <!-- Love -->
+                <div class="card-bg rounded-xl p-6 hover:bg-gray-800 transition duration-300">
+                    <div class="flex items-center mb-3">
+                        <span class="text-2xl mr-3">❤️</span>
+                        <h4 class="text-lg font-bold text-gray-200">애정운</h4>
+                    </div>
+                    <p id="loveText" class="text-sm text-gray-400 leading-relaxed break-keep"></p>
+                </div>
+
+                <!-- Career -->
+                <div class="card-bg rounded-xl p-6 hover:bg-gray-800 transition duration-300">
+                    <div class="flex items-center mb-3">
+                        <span class="text-2xl mr-3">💼</span>
+                        <h4 class="text-lg font-bold text-gray-200">직장/학업운</h4>
+                    </div>
+                    <p id="careerText" class="text-sm text-gray-400 leading-relaxed break-keep"></p>
+                </div>
+
+                <!-- Health -->
+                <div class="card-bg rounded-xl p-6 hover:bg-gray-800 transition duration-300">
+                    <div class="flex items-center mb-3">
+                        <span class="text-2xl mr-3">🌿</span>
+                        <h4 class="text-lg font-bold text-gray-200">건강운</h4>
+                    </div>
+                    <p id="healthText" class="text-sm text-gray-400 leading-relaxed break-keep"></p>
+                </div>
+            </div>
+
+            <!-- Lucky Items -->
+            <div class="card-bg rounded-2xl p-6">
+                <h3 class="text-lg font-bold text-gray-200 mb-4 text-center border-b border-gray-700 pb-2">오늘의 행운 비방(秘方)</h3>
+                <div class="grid grid-cols-3 gap-4 text-center">
+                    <div>
+                        <div class="text-2xl mb-1">🎨</div>
+                        <div class="text-xs text-gray-500">행운의 색</div>
+                        <div id="luckyColor" class="font-bold text-yellow-500 mt-1">황금색</div>
+                    </div>
+                    <div>
+                        <div class="text-2xl mb-1">🧭</div>
+                        <div class="text-xs text-gray-500">행운의 방향</div>
+                        <div id="luckyDirection" class="font-bold text-yellow-500 mt-1">동쪽</div>
+                    </div>
+                    <div>
+                        <div class="text-2xl mb-1">🔢</div>
+                        <div class="text-xs text-gray-500">행운의 숫자</div>
+                        <div id="luckyNumber" class="font-bold text-yellow-500 mt-1">7</div>
+                    </div>
+                </div>
+            </div>
+
+            <button onclick="window.location.reload()" class="w-full py-3 rounded-xl border border-gray-600 text-gray-400 hover:text-white hover:border-white transition mb-10">
+                다른 사주로 다시 보기
+            </button>
+        </div>
+    </main>
+
+    <footer class="text-center text-xs text-gray-600 mt-auto pb-4">
+        &copy; 2024 운명의 서. 명리학 기반 알고리즘 적용.<br>
+        운세는 참고용으로만 즐겨주세요. 당신의 운명은 당신이 개척합니다.
+    </footer>
+
+    <script>
+        // --- Data & Logic Section ---
+
+        // 천간, 지지 데이터
+        const cheongan = ['갑(甲)', '을(乙)', '병(丙)', '정(丁)', '무(戊)', '기(己)', '경(庚)', '신(辛)', '임(壬)', '계(癸)'];
+        const jiji = ['자(子)', '축(丑)', '인(寅)', '묘(卯)', '진(辰)', '사(巳)', '오(午)', '미(未)', '신(申)', '유(酉)', '술(戌)', '해(亥)'];
+        const sibsin = ['비견', '겁재', '식신', '상관', '편재', '정재', '편관', '정관', '편인', '정인'];
+        
+        // 오행 매핑 (목, 화, 토, 금, 수)
+        const elementMap = {
+            '갑': '목', '을': '목', '인': '목', '묘': '목',
+            '병': '화', '정': '화', '사': '화', '오': '화',
+            '무': '토', '기': '토', '진': '토', '술': '토', '축': '토', '미': '토',
+            '경': '금', '신': '금', '신(申)': '금', '유': '금',
+            '임': '수', '계': '수', '해': '수', '자': '수'
+        };
+
+        // 운세 텍스트 템플릿 데이터베이스
+        const fortuneDB = {
+            high: {
+                total: ["마치 순풍에 돛을 단 듯 모든 일이 순조롭게 풀리는 날입니다. 그동안 노력했던 일들이 결실을 맺을 징조가 보입니다.", "하늘의 기운이 당신을 돕고 있습니다. 주저하지 말고 계획했던 일을 추진해보세요. 귀인의 도움이 따를 것입니다.", "음양의 조화가 완벽하여 마음이 평안하고 신체가 건강한 하루입니다. 큰 결단을 내려도 좋습니다."],
+                wealth: ["뜻밖의 횡재수가 있거나 투자에 대한 좋은 소식이 들려옵니다.", "지갑이 두둑해지는 날입니다. 작은 지출보다는 미래를 위한 투자가 좋습니다.", "금전 흐름이 매우 원활합니다. 누군가에게 베풀면 배로 돌아옵니다."],
+                love: ["애정운이 최상입니다. 솔로라면 운명의 상대를 마주칠 수 있으며, 커플은 관계가 깊어집니다.", "상대방이 당신의 매력을 깊이 느끼는 날입니다. 고백하기 좋은 날입니다.", "오해가 풀리고 사랑이 다시 싹트는 시기입니다."],
+                career: ["직장에서 능력을 인정받고 승진이나 보너스의 기회가 생깁니다.", "학업 성취도가 높습니다. 시험이나 면접에서 좋은 결과가 예상됩니다.", "동료들의 지지를 받아 리더십을 발휘할 수 있는 날입니다."],
+                health: ["활력이 넘치고 컨디션이 최상입니다. 가벼운 운동으로 기운을 더 북돋우세요.", "몸과 마음이 가벼워 어떤 일이든 해낼 수 있는 체력입니다.", "병세가 있었다면 호전될 기미가 보입니다."],
+                caution: ["너무 강한 운은 시기를 부를 수 있습니다. 겸손한 태도를 잃지 마세요.", "기분에 취해 과음하거나 늦은 귀가는 피하는 것이 좋습니다.", "자신감이 과하면 실수가 따릅니다. 돌다리도 두들겨 보세요."],
+                good: ["새로운 사람과의 만남이 아주 좋습니다. 명함을 교환하거나 인사를 건네보세요.", "창의적인 활동이나 기획 업무에서 빛을 발할 수 있습니다.", "오랫동안 고민하던 문제를 해결할 실마리를 찾게 됩니다."],
+                prediction: ["오후 늦게 반가운 연락이나 소식이 도착할 것입니다.", "우연히 들른 곳에서 당신에게 필요한 귀한 정보를 얻게 됩니다.", "오늘 당신이 내린 결정은 일주일 내로 긍정적인 결과로 돌아옵니다."]
+            },
+            mid: {
+                total: ["평범함 속에 소소한 행복이 깃든 날입니다. 무리하지 않고 현재를 유지하는 것이 가장 큰 지혜입니다.", "좋은 일과 나쁜 일이 교차하지만, 마음가짐에 따라 결과가 달라집니다. 긍정적으로 생각하세요.", "흐르는 물처럼 유연하게 대처하면 큰 문제 없이 지나갈 하루입니다."],
+                wealth: ["수입과 지출이 균형을 이룹니다. 충동구매만 조심하면 무난합니다.", "큰 이득은 없지만 손해도 없는 날입니다. 현상 유지가 중요합니다.", "지인과의 금전 거래는 신중하게 생각하는 것이 좋습니다."],
+                love: ["편안한 관계가 지속됩니다. 특별한 이벤트보다는 일상의 대화가 중요합니다.", "약간의 다툼이 있을 수 있으나 대화로 금방 해결될 문제입니다.", "새로운 만남보다는 기존의 인연을 소중히 하세요."],
+                career: ["맡은 바 업무를 묵묵히 처리하면 성과가 따릅니다. 튀지 않는 것이 좋습니다.", "공부나 일에 집중이 잘 안 될 수도 있습니다. 잠시 휴식을 취하세요.", "새로운 프로젝트보다는 하던 일을 마무리하는 것이 유리합니다."],
+                health: ["전반적으로 무난하지만, 과로하면 피로가 쌓일 수 있습니다.", "소화기가 약해질 수 있으니 자극적인 음식은 피하세요.", "스트레칭으로 뭉친 근육을 풀어주는 것이 좋습니다."],
+                caution: ["사소한 말실수가 오해를 낳을 수 있습니다. 경청하는 자세가 필요합니다.", "계약이나 서류 작성 시 꼼꼼히 두 번 확인해야 합니다.", "저녁 시간, 급하게 이동하다가 발목을 삐끗하거나 넘어질 수 있으니 조심하세요."],
+                good: ["독서나 명상 등 정적인 활동이 정신 건강에 큰 도움을 줍니다.", "오래된 물건을 정리하면 막혔던 운이 뚫립니다.", "가벼운 산책이나 등산이 활력을 불어넣어 줄 것입니다."],
+                prediction: ["점심 식사 중 흥미로운 이야기를 듣게 되거나 아이디어가 떠오릅니다.", "잊고 있었던 작은 돈(적립금, 동전 등)을 발견하게 됩니다.", "저녁 7시경, 마음을 편안하게 해주는 일이 생길 것입니다."]
+            },
+            low: {
+                total: ["안개가 낀 듯 앞이 잘 보이지 않을 수 있습니다. 섣불리 움직이기보다는 때를 기다리며 내실을 다지는 것이 좋습니다.", "주변 사람과의 마찰이 예상됩니다. 언행을 조심하고 한 발 양보하는 미덕이 필요합니다.", "예상치 못한 변수가 발생할 수 있습니다. 당황하지 말고 차분하게 대처하세요."],
+                wealth: ["지갑 단속이 필요합니다. 예상치 못한 지출이 발생할 수 있으니 아껴 쓰세요.", "투자나 투기는 금물입니다. 오늘은 현금을 지키는 것이 돈을 버는 것입니다.", "물건을 잃어버리거나 손해를 볼 수 있으니 주의하세요."],
+                love: ["사소한 말실수로 인해 상대방에게 상처를 줄 수 있습니다. 경청하는 자세가 필요합니다.", "감정 기복이 심해질 수 있습니다. 혼자만의 시간을 갖는 것도 방법입니다.", "이별수가 있거나 냉전 상태가 될 수 있으니 자존심을 버리세요."],
+                career: ["직장에서 구설수에 휘말릴 수 있습니다. 남의 일에 참견하지 마세요.", "집중력이 떨어져 실수가 잦을 수 있습니다. 두 번 세 번 확인하세요.", "무리한 계획 수정은 화를 부릅니다. 기존 방식을 고수하세요."],
+                health: ["면역력이 떨어지기 쉬운 날입니다. 감기나 유행성 질병을 조심하세요.", "낙상이나 부상의 위험이 있으니 과격한 활동은 피하세요.", "스트레스로 인한 두통이 있을 수 있습니다. 명상이 도움이 됩니다."],
+                caution: ["스마트폰이나 지갑 분실의 우려가 있습니다. 소지품을 잘 챙기세요.", "운전 중이거나 길을 건널 때 평소보다 더욱 주의를 기울여야 합니다.", "가까운 사람과의 언쟁은 피하세요. 오늘은 당신이 참는 것이 이기는 것입니다."],
+                good: ["집안 청소나 목욕재계로 나쁜 기운을 씻어내는 것이 좋습니다.", "기부나 봉사활동은 액운을 막아주는 최고의 방패입니다.", "일찍 귀가하여 충분한 수면을 취하는 것이 내일의 운을 부릅니다."],
+                prediction: ["약속이 갑자기 취소되거나 지연될 수 있습니다. 미리 대비하세요.", "오후 시간, 업무나 학업에서 작은 실수가 발견되어 수정하게 됩니다.", "생각지도 못한 사람과 마주치지만, 짧은 인사가 최선입니다."]
+            }
+        };
+
+        const colors = ["붉은색", "푸른색", "황금색", "검은색", "흰색", "초록색", "보라색"];
+        const directions = ["동쪽", "서쪽", "남쪽", "북쪽", "동남쪽", "북서쪽"];
+
+        // 유틸리티 함수: 60갑자 계산
+        function getGanji(year, month, day) {
+            // 기준일: 1900년 1월 1일 (갑술일로 가정 - 실제 복잡한 절기 계산은 약식으로 대체하여 시뮬레이션)
+            // 명리학적으로 정확한 절기(입춘 등) 계산은 매우 복잡하므로, 
+            // 여기서는 웹 앱의 재미 요소를 위해 표준 알고리즘을 단순화하여 적용합니다.
+            
+            const heavenlyStems = "갑을병정무기경신임계";
+            const earthlyBranches = "자축인묘진사오미신유술해";
+            
+            // 년주 계산 (입춘 기준 무시하고 양력 1/1 기준 약식)
+            const yearIndex = (year - 4) % 60; 
+            const yearStem = heavenlyStems[yearIndex % 10];
+            const yearBranch = earthlyBranches[yearIndex % 12];
+            
+            // 월주 계산 (약식: 년간에 따른 월두법 적용)
+            // 년간의 인덱스(0:갑 ~ 9:계)
+            const yearStemIndex = yearIndex % 10;
+            // 월두법: 갑기년->병인두, 을경년->무인두...
+            const monthStartStemIndex = (yearStemIndex % 5) * 2 + 2; 
+            const monthStemIndex = (monthStartStemIndex + (month - 1) + 10) % 10; // 인월(2월)부터 시작이나 약식으로 1월=인월 매핑
+            const monthBranchIndex = (month + 1) % 12; // 1월=인(2)
+            
+            const monthStem = heavenlyStems[monthStemIndex];
+            const monthBranch = earthlyBranches[monthBranchIndex];
+
+            // 일주 계산 (그레고리력 -> 줄리안 데이 -> 60갑자)
+            // 간단한 시뮬레이션을 위해 날짜 차이를 이용
+            const baseDate = new Date(1900, 0, 1);
+            const targetDate = new Date(year, month - 1, day);
+            const diffTime = Math.abs(targetDate - baseDate);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+            
+            // 1900.1.1은 갑술일(10) -> 인덱스 10
+            const dayGanjiIndex = (10 + diffDays) % 60;
+            const dayStem = heavenlyStems[dayGanjiIndex % 10];
+            const dayBranch = earthlyBranches[dayGanjiIndex % 12];
+
+            return {
+                year: yearStem + yearBranch,
+                month: monthStem + monthBranch,
+                day: dayStem + dayBranch,
+                dayStem: dayStem, // 일간 (나)
+                dayIndex: dayGanjiIndex
+            };
+        }
+
+        // 시드 기반 랜덤 함수 (동일 날짜/생일이면 동일 결과)
+        function seededRandom(seed) {
+            var x = Math.sin(seed++) * 10000;
+            return x - Math.floor(x);
+        }
+
+        // 메인 로직
+        document.getElementById('sajuForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value || '방문자';
+            const birthdate = document.getElementById('birthdate').value;
+            const birthtime = document.getElementById('birthtime').value;
+            const gender = document.querySelector('input[name="gender"]:checked').value;
+
+            if (!birthdate) {
+                alert('생년월일을 입력해주세요.');
+                return;
+            }
+
+            // UI 전환
+            document.getElementById('inputSection').classList.add('hidden');
+            document.getElementById('loadingSection').classList.remove('hidden');
+
+            // 로딩 시뮬레이션 (1.5초)
+            setTimeout(() => {
+                showResult(username, birthdate, birthtime, gender);
+            }, 1500);
+        });
+
+        function showResult(name, dateStr, time, gender) {
+            document.getElementById('loadingSection').classList.add('hidden');
+            const resultSection = document.getElementById('resultSection');
+            resultSection.classList.remove('hidden');
+            resultSection.classList.add('fade-in');
+
+            const date = new Date(dateStr);
+            const year = date.getFullYear();
+            const month = date.getMonth() + 1;
+            const day = date.getDate();
+
+            // 1. 사주 팔자 계산 (약식)
+            const saju = getGanji(year, month, day);
+            
+            // 시간은 선택값에 따라 처리
+            let timeText = "미상";
+            if (time !== 'unknown') {
+                const hourIndex = parseInt(time);
+                // 시주 계산 로직은 복잡하므로 일간 기준 시두법 약식 적용
+                const dayStemIndex = "갑을병정무기경신임계".indexOf(saju.dayStem);
+                const hourStartStemIndex = (dayStemIndex % 5) * 2;
+                const hourStem = "갑을병정무기경신임계"[(hourStartStemIndex + hourIndex) % 10];
+                const hourBranch = "자축인묘진사오미신유술해"[hourIndex];
+                timeText = hourStem + hourBranch;
+            }
+
+            // 2. 화면 표시
+            document.getElementById('resultName').innerText = name;
+            document.getElementById('currentDateDisplay').innerText = new Date().toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' });
+            
+            document.getElementById('yearPillar').innerText = saju.year;
+            document.getElementById('monthPillar').innerText = saju.month;
+            document.getElementById('dayPillar').innerText = saju.day;
+            document.getElementById('hourPillar').innerText = timeText;
+
+            // 본원(일간) 설명
+            const dayStemChar = saju.dayStem;
+            const myElement = elementMap[dayStemChar] || '알 수 없음';
+            const elementColors = {'목': '푸른색(청룡)', '화': '붉은색(주작)', '토': '황금색(황룡)', '금': '흰색(백호)', '수': '검은색(현무)'};
+            document.getElementById('myElement').innerText = `당신은 ${elementColors[myElement]}의 기운을 가진 '${dayStemChar}' 일간입니다.`;
+
+            // 3. 운세 생성 (시드 생성)
+            const today = new Date();
+            const seed = year * month * day * today.getDate() * (today.getMonth() + 1) + (gender === 'male' ? 1 : 2);
+            
+            // 점수 계산 (40~100 사이 랜덤)
+            const score = Math.floor(seededRandom(seed) * 61) + 40;
+            
+            // 점수에 따른 레벨 결정
+            let level = 'mid';
+            let comment = '평범한 하루';
+            let barColor = 'bg-yellow-500';
+            let commentColor = 'text-yellow-600 bg-yellow-200';
+
+            if (score >= 85) {
+                level = 'high';
+                comment = '대길 (Great Luck)';
+                barColor = 'bg-red-500'; // 명리학에서 빨강은 양의 기운
+                commentColor = 'text-red-700 bg-red-200';
+            } else if (score <= 55) {
+                level = 'low';
+                comment = '주의 필요';
+                barColor = 'bg-gray-500';
+                commentColor = 'text-gray-700 bg-gray-200';
+            } else {
+                comment = '평온함';
+            }
+
+            // UI 업데이트
+            document.getElementById('scoreValue').innerText = score;
+            const scoreBar = document.getElementById('scoreBar');
+            scoreBar.style.width = score + '%';
+            scoreBar.className = `shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center ${barColor} transition-all duration-1000 ease-out h-full`;
+            
+            const scoreCommentObj = document.getElementById('scoreComment');
+            scoreCommentObj.innerText = comment;
+            scoreCommentObj.className = `text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full ${commentColor}`;
+
+            // 텍스트 선택 함수
+            const pickText = (category) => {
+                const arr = fortuneDB[level][category];
+                const index = Math.floor(seededRandom(seed + category.length) * arr.length);
+                return arr[index];
+            };
+
+            document.getElementById('totalFortuneText').innerText = pickText('total');
+            document.getElementById('wealthText').innerText = pickText('wealth');
+            document.getElementById('loveText').innerText = pickText('love');
+            document.getElementById('careerText').innerText = pickText('career');
+            document.getElementById('healthText').innerText = pickText('health');
+            
+            // New Texts
+            document.getElementById('cautionText').innerText = pickText('caution');
+            document.getElementById('goodText').innerText = pickText('good');
+            document.getElementById('predictionText').innerText = pickText('prediction');
+
+            // 행운의 아이템
+            const luckyColor = colors[Math.floor(seededRandom(seed + 1) * colors.length)];
+            const luckyDir = directions[Math.floor(seededRandom(seed + 2) * directions.length)];
+            const luckyNum = Math.floor(seededRandom(seed + 3) * 9) + 1;
+
+            document.getElementById('luckyColor').innerText = luckyColor;
+            document.getElementById('luckyDirection').innerText = luckyDir;
+            document.getElementById('luckyNumber').innerText = luckyNum;
+        }
+    </script>
+</body>
+</html>
