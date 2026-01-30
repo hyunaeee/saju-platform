@@ -36,6 +36,7 @@
 ---
 
 ## 📂 프로젝트 구조
+```bash
 saju-platform/
 ├── index.html
 ├── assets/
@@ -45,7 +46,7 @@ saju-platform/
 ├── scripts/
 │ └── main.js
 └── README.md
-
+```
 ---
 
 ## ▶️ 실행 방법
@@ -60,14 +61,16 @@ cd saju-platform
 ### 🌐 배포 (선택)
 
 GitHub Pages, Vercel, Netlify 등을 통해 손쉽게 배포할 수 있습니다.
-https://saju-platform.vercel.app/
 
+```bash
+https://saju-platform.vercel.app/
+```
 ---
 
 ## 🚧 향후 확장 아이디어
-🔮 AI 기반 사주 해석 자동 생성
-👤 사용자 계정 및 사주 결과 저장
-📊 오행 / 십신 시각화
-🌍 다국어 지원
-📱 모바일 UI 최적화
+- 🔮 AI 기반 사주 해석 자동 생성
+- 👤 사용자 계정 및 사주 결과 저장
+- 📊 오행 / 십신 시각화
+- 🌍 다국어 지원
+- 📱 모바일 UI 최적화
 
